@@ -1,0 +1,12 @@
+{
+  "name": "Swipester",
+  "displayName": "Swipester",
+  "expo": {
+    "name": "Swipester",
+    "slug": "Swipester",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
