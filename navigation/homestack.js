@@ -1,56 +1,56 @@
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
 import Login from '../components/Login';
-import Home from '../components/Home';
-import Sectors from '../components/Sectors';
-import SwipeScreen from '../components/SwipeScreen';
 import Review from '../components/Review';
-import Cart from '../components/Cart';
-import Alpaca from '../components/Alpaca';
-const stack = createStackNavigator({
-    Login: {
-        screen: Login,
-        navigationOptions: {
-            headerShown: false,
-        }  
-    },
-    Home: {
-        screen: Home,
-        navigationOptions: {
-            headerShown: false,
-            gestureEnabled: false,
-        }
-    },
-    Sectors: {
-        screen: Sectors,
-        navigationOptions: {
-            headerShown: false,
-        }
-    },
-    SwipeScreen: {
-        screen: SwipeScreen,
-        navigationOptions: {
-            headerShown: false,
-        }
-    },
-    Review: {
-        screen: Review,
-        navigationOptions: {
-            headerShown: false,
-        },
-    },
-    Cart: {
-        screen: Cart,
-        navigationOptions: {
-            headerShown: false,
-        }
-    },
-    Alpaca: {
-        screen: Alpaca,
-        navigationOptions: {
-            headerShown: false,
-        }
-    }
-});
+import SectorStack from './SectorStack'
+import { createStackNavigator } from '@react-navigation/stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { NavigationContainer } from '@react-navigation/native'
+import IconAwesome from 'react-native-vector-icons/FontAwesome'
+import IconNextAwesome from 'react-native-vector-icons/MaterialCommunityIcons'
+import ReviewStack from './ReviewStack'
+import React from 'react'
 
-export default createAppContainer(stack);
+const Tab = createBottomTabNavigator()
+function MyTabs() {
+  return (
+        <Tab.Navigator>
+            <Tab.Screen name="Swipe" component={ SectorStack }  
+                options={{
+                    tabBarLabel: 'Swipe',
+                    tabBarIcon: ({ color, size }) => (
+                    <IconNextAwesome name='card' color = { color } size = { size } />
+                    ),
+                }}
+            />
+            <Tab.Screen name="Review" component={ ReviewStack }  
+                options={{
+                    tabBarLabel: 'Review',
+                    tabBarIcon: ({ color, size }) => (
+                    <IconNextAwesome name='cart' size = {size} color = {color} />
+                    ),
+                }}
+            />
+        </Tab.Navigator>
+  );
+}
+const Stack = createStackNavigator()
+export default function App() {
+    return (
+        <NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen 
+                name = "Login"
+                component = { Login }
+                />
+                <Stack.Screen 
+                name = "Home"
+                component = { MyTabs }
+                options = {{
+                    headerShown: false,
+                    gestureEnabled: false,
+                }}
+                
+                />
+            </Stack.Navigator>
+        </NavigationContainer>
+    )
+}

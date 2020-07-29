@@ -3,18 +3,7 @@ import { Container, Text, Button, Header, Title, Body, Content, Card } from 'nat
 import { StyleSheet } from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-community/async-storage';
-const resetStorage = async () => {
-    await AsyncStorage.setItem('Energy', '0');
-    await AsyncStorage.setItem('Materials', '0');
-    await AsyncStorage.setItem('Industrials', '0');
-    await AsyncStorage.setItem('Consumer Staples', '0');
-    await AsyncStorage.setItem('Health Care', '0');
-    await AsyncStorage.setItem('Financials', '0');
-    await AsyncStorage.setItem('Information Technology', '0');
-    await AsyncStorage.setItem('Communication Services', '0');
-    await AsyncStorage.setItem('Utilities', '0');
-    await AsyncStorage.setItem('Real Estate', '0');
-}
+
 const buildStorage = async () => {
     if(await AsyncStorage.getItem('Energy'))
         await AsyncStorage.setItem('Energy', '0')
@@ -43,11 +32,6 @@ export default function App({ navigation }) {
     }, [])
     return (
         <Container>
-            <Header>
-                <Body>
-                    <Title>Home</Title>
-                </Body>
-            </Header>
             <Content>
                 <Button style = { styles.button } onPress = { () => navigation.navigate("Sectors") } primary block>
                     <Text>Start Swiping</Text>

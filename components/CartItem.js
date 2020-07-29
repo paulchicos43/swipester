@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import { Container, Text } from 'native-base';
-import { StyleSheet, Slider } from 'react-native';
+import { Text } from 'native-base';
+import { Slider } from 'react-native';
 
 export default function App(props) {
     const [value, setValue] = useState(0);
@@ -26,14 +26,10 @@ export default function App(props) {
                     clearTimeout(sliderTimeoutId)
                     var sliderTimeoutId = setTimeout(() => {
                         handleChange(value)
-                    }, 10)
+                    }, 1)
                 }
             }
             />
          </>
     );
 }
-
-const styles = StyleSheet.create({
-
-});

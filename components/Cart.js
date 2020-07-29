@@ -1,13 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import { Header, Title, Container, Left, Right, Body, Content, Button, Text, Icon, Spinner } from 'native-base';
-import { YellowBox, FlatList } from 'react-native';
+import { Container, Content, Text, Spinner } from 'native-base';
+import { YellowBox, FlatList, Button } from 'react-native';
 import CartItem from './CartItem';
 import firebase from 'firebase';
 const axios = require('axios')
 require('firebase/functions')
 
-export default function App({ navigation }) {
-    const [selected, setSelected] = useState(navigation.getParam('selected'));
+export default function App({ navigation, route }) {
+    const [selected, setSelected] = useState(route.params.selected);
     const [buyingPower, setBuyingPower] = useState(0);
     const [loading, setLoading] = useState(true);
     const handlePress = () => {
@@ -25,7 +25,7 @@ export default function App({ navigation }) {
               });
         }
         alert("Order placed. Will execute shortly.");
-        navigation.navigate("Home");
+        navigation.navigate("Review");
     }
     if(loading){
         axios({
@@ -41,8 +41,10 @@ export default function App({ navigation }) {
             setLoading(false);
         })
         .catch(error => {
-            alert("You must have an alpaca account linked before going here.")
-            navigation.navigate('Review')
+            alert("You need to link an Alpaca Account")
+            navigation.push("Alpaca")
+            
+
         })
     }
 
@@ -60,32 +62,20 @@ export default function App({ navigation }) {
     return (
         !loading ?
         <Container>
-            <Header>
-                <Left>
-                    <Button onPress = { () => navigation.navigate('Review') } transparent>
-                        <Icon name = "arrow-back" />
-                    </Button>
-                </Left>
-                <Body>
-                    <Title>Cart</Title>
-                    <Text>BP: $ { buyingPower }</Text>
-                </Body>
-                <Right>
-                    <Button onPress = { handlePress } transparent>
-                        <Text>Buy</Text>
-                    </Button>
-                </Right>
-            </Header>
             <Content>
+                <Text style = {{alignSelf: 'center'}}>Buying Power: { buyingPower }</Text>
                 <FlatList
                 windowSize = { 10 }
                 data = { selected }
+                style = {{marginTop: 20,}}
                 renderItem = { ({item}) =>{
                     return <CartItem propogate = { propogate } title = { item.title } />
                     }
                 }
                 />
+                <Button title = "Make Order" onPress = { handlePress } />
             </Content>
+            
         </Container>
         :
         <Container style = {{ justifyContent: 'center' }}>

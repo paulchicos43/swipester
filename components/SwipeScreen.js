@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 const axios = require('axios');
 require('firebase/firestore');
 require('firebase/functions');
-export default function App({ navigation }) {
+export default function App({ route,navigation }) {
     var numberOfSwipes = 0
     const sectorData = require('../sectors.json');
     const [loading, setLoading] = useState(true);
@@ -55,7 +55,7 @@ export default function App({ navigation }) {
         return parseInt(final);
     }
     for(let object in sectorData){
-        if(sectorData[object]['Sector'] === navigation.getParam('title')){
+        if(sectorData[object]['Sector'] === route.params.title){
                 stocks[stocks.length] = {
                     symbol: sectorData[object]['Symbol'],
                     title: sectorData[object]['Name'],
@@ -73,7 +73,7 @@ export default function App({ navigation }) {
         await AsyncStorage.setItem(sector, "0")
     }
     if(loading){
-        getSectorProgress(navigation.getParam('title'))
+        getSectorProgress(route.params.title)
         .then(result => {
             setProgress(parseInt(result));
             setLoading(false);
@@ -88,7 +88,7 @@ export default function App({ navigation }) {
         
         if(stocks.slice(progress + 1).length === 0) {
             alert('You\'ve reached the end of the deck.')
-            resetDeck(navigation.getParam('title'))
+            resetDeck(route.params.title)
             navigation.navigate('Sectors')
         }
         numberOfSwipes = numberOfSwipes + 1
@@ -96,7 +96,7 @@ export default function App({ navigation }) {
             alert("You've swiped 10 times.")
             numberOfSwipes = 0
         }
-        await incrementSector(navigation.getParam('title'))
+        await incrementSector(route.params.title)
         const likeObject = {
             swipeAction: 'right',
             swipedBy: firebase.auth().currentUser.uid,
@@ -110,7 +110,7 @@ export default function App({ navigation }) {
         
         if(stocks.slice(progress + 1).length === 0) {
             alert('You\'ve reached the end of the deck.')
-            resetDeck(navigation.getParam('title'))
+            resetDeck(route.params.title)
             navigation.navigate('Sectors')
         }
         numberOfSwipes = numberOfSwipes + 1
@@ -118,7 +118,7 @@ export default function App({ navigation }) {
             alert("You've swiped 10 times.")
             numberOfSwipes = 0
         }
-        await incrementSector(navigation.getParam('title'))
+        await incrementSector(route.params.title)
         const dislikeObject = {
             swipeAction: 'left',
             swipedBy: firebase.auth().currentUser.uid,
@@ -131,18 +131,6 @@ export default function App({ navigation }) {
     return (
         !loading ?
         <Container>
-            <Header>
-                <Left>
-                    <Button onPress = { () => navigation.navigate("Sectors") } transparent>
-                        <Icon name = 'arrow-back' />
-                    </Button>
-                </Left>
-                <Body>
-                    <Title>{ navigation.getParam('title') }</Title>
-                </Body>
-                <Right>
-                </Right>
-            </Header>
             <View>
                 <Title/>
                 <DeckSwiper

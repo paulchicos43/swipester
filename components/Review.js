@@ -3,16 +3,21 @@ import { Container, Header, Body, Title, Right, Button, Icon, Left } from 'nativ
 import { StyleSheet, YellowBox } from 'react-native';
 import List from './List';
 
-export default function App({ navigation }) {
+export default function App({ route, navigation }) {
     const [seg, setSeg] = useState("right");
-    var selected = []
+    const [selected, setSelected] = useState([])
 
     const addToList = (stockTitle, swipe) => {
-        selected.push({
+        var newArray = selected
+        newArray.push({
             title: stockTitle,
             swipeAction: swipe,
             shares: 0,
         });
+        setSelected(newArray)
+        navigation.setParams({
+            selected: selected,
+        })
         return;
     }
 
@@ -23,8 +28,10 @@ export default function App({ navigation }) {
                 newArray.push(selected[i]);
             }
         }
-        selected = newArray
-        
+        setSelected(newArray)
+        navigation.setParams({
+            selected: selected,
+        })
         return;
     }
     useEffect(() => {
@@ -32,32 +39,7 @@ export default function App({ navigation }) {
     });
     return (
         <Container>
-            <Header>
-                <Left>
-                    <Button onPress = { () => navigation.navigate('Home') } transparent>
-                        <Icon name = "arrow-back" />
-                    </Button>
-                </Left>
-                <Body>
-                    <Title>Review</Title>
-                    {/* <Segment>
-                        <Button first onPress = { () => setSeg("right") } active = { seg === "right" ? true : false }><Text>Longs</Text></Button>
-                        <Button last onPress = { () => setSeg("left") } active = { seg === "left" ? true : false }><Text>Shorts</Text></Button>
-                    </Segment> */}
-                </Body>
-                <Right>
-                    <Button onPress = { () => navigation.navigate("Cart", {
-                        selected: selected,
-                    }) } transparent>
-                        <Icon name = 'arrow-forward' />
-                    </Button>
-                </Right>
-            </Header>
             <List addToList = { (stockTitle, swipeAction) => addToList(stockTitle, swipeAction) } removeFromList = { removeFromList } />
         </Container>
     );
 }
-
-const styles = StyleSheet.create({
-
-});
