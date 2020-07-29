@@ -32,6 +32,7 @@ export default function App(props) {
         chart: {},
     })
     const batchRequest = async () => {
+        setTimeout(async () => {
         const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=price,advanced-stats,news,financials,recommendation-trends,stats,income,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
         const price = result.data.price
         const EBITDA = result.data['advanced-stats'].EBITDA
@@ -68,7 +69,9 @@ export default function App(props) {
             dataPoints: dataPoints,
             volatility: volatility
         })
-        setLoading(false);
+        
+    }, 100)
+    setLoading(false);
     }
 
     useEffect(() => {
