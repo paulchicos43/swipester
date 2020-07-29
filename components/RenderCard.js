@@ -69,10 +69,8 @@ export default function App(props) {
             dataPoints: dataPoints,
             volatility: volatility
         })
-        
-    }, 100)
-    setLoading(false);
-    }
+        setLoading(false);
+        }, 10)}
 
     useEffect(() => {
         batchRequest()
@@ -80,7 +78,48 @@ export default function App(props) {
     }, [props.symbol])
     
 
-
+    // const batchRequest = async () => {
+    //     setTimeout(async () => {
+    //     const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=price,advanced-stats,news,financials,recommendation-trends,stats,income,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+    //     const price = result.data.price
+    //     const EBITDA = result.data['advanced-stats'].EBITDA
+    //     const enterpriseValue = result.data['advanced-stats'].enterpriseValue
+    //     const PE = result.data['advanced-stats'].forwardPERatio
+    //     const netDebt = result.data.financials.financials[0].shortTermDebt + result.data.financials.financials[0].longTermDebt + result.data.financials.financials[0].currentDebt - result.data.financials.financials[0].totalCash
+    //     const sales = result.data.financials.financials[0].totalRevenue;
+    //     const buys = result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingBuy + result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingOverweight
+    //     const holds = result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingHold
+    //     const sells = result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingSell + result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingUnderweight
+    //     const eps = result.data.stats.ttmEPS
+    //     const chartData = result.data.chart
+    //     var volatility
+        
+        
+    //     for (var data of chartData) {
+    //         dates.add(data.date.split('-')[1])
+    //         dataPoints.push(data.close)
+    //     }
+    //     const indicator = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/indicator/volatility?range=ytd&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    //     volatility = indicator.data.indicator[0][indicator.data.indicator[0].length - 1]
+    //     setData({
+    //         price: price,
+    //         enterpriseValue: enterpriseValue,
+    //         netDebt: netDebt,
+    //         EBITDA: EBITDA,
+    //         PE: PE,
+    //         buys: buys,
+    //         sells: sells,
+    //         holds: holds,
+    //         sales: sales,
+    //         eps: eps,
+    //         dates: Array.from(dates).sort(),
+    //         dataPoints: dataPoints,
+    //         volatility: volatility
+    //     })
+        
+    // }, 100)
+    // setLoading(false);
+    // }
 
     return (
         !loading ?
