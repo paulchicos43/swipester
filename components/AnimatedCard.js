@@ -10,7 +10,7 @@ export default function App({handleExit, handleAdd, handleRemove, item}) {
     const [iconColor, setIconColor] = useState("")
     const [iconName, setIconName] = useState("")
     const handleExitPress = (item) => {
-        Animated.timing(position, {toValue: { x: 420, y: 0}, duration: 100, useNativeDriver: false}).start(() => {
+        Animated.timing(position, {toValue: { x: 450, y: 0}, duration: 100, useNativeDriver: false}).start(() => {
             handleRemove(item)
             setData({
                 textColor: 'black',
