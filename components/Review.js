@@ -11,7 +11,7 @@ export default function App({ route, navigation }) {
     const [companies, setCompanies] = useState([])
     const [loading, setLoading] = useState(true)
     const axios = require('axios')
-    const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).orderBy("time", "desc").limit(40);
+    const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).where("active","==",true).orderBy("time", "desc").limit(40);
     const isFocused = useIsFocused()
     useEffect(() => {
             query.get().then(querySnapshot => {

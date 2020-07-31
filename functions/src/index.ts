@@ -65,3 +65,19 @@ exports.getBalance = functions.https.onRequest(async (req, res) => {
     })
     res.send("" + result.data.buying_power)
 })
+
+exports.addSwipeItem = functions.https.onCall(async (data, context) => {
+    const ref = await admin.firestore().collection('swipes').where('swipedOn', '==', data.swipedOn).orderBy('time', 'desc').get()
+    if(ref.docs[0] != null){
+        admin.firestore().collection('swipes').doc(ref.docs[0].id).set({
+            swipeAction: ref.docs[0].data().swipeAction,
+            swipedBy: ref.docs[0].data().swipedBy,
+            swipedOnName: ref.docs[0].data().swipedOnName,
+            active: false,
+            swipedOn: ref.docs[0].data().swipedOn,
+            time: ref.docs[0].data().time
+        })
+    }
+    admin.firestore().collection('swipes').add(data)
+    return;
+})

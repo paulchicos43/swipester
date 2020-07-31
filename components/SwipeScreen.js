@@ -15,45 +15,7 @@ export default function App({ route,navigation }) {
     const [progress, setProgress] = useState(0);
     var currentStock = ""
     var stocks = [];
-    const getTime = () => {
-        const time = new Date().toString();
-        const parts = time.split(" ");
-        var final = "";
-        var month = 0;
-        if(parts[1] === "Jan"){
-            month = 0;
-        } else if (parts[1] === "Feb") {
-            month = 1;
-        } else if (parts[1] === "Mar") {
-            month = 2;
-        } else if (parts[1] === "Apr") {
-            month = 3;
-        } else if (parts[1] === "May") {
-            month = 4;
-        } else if (parts[1] === "Jun") {
-            month = 5;
-        } else if (parts[1] === "Jul") {
-            month = 6;
-        } else if (parts[1] === "Aug") {
-            month = 7
-        } else if (parts[1] === "Sep") {
-            month = 8;
-        } else if (parts[1] === "Oct") {
-            month = 9;
-        } else if (parts[1] === "Nov") {
-            month = 10;
-        } else {
-            month = 11;
-        }
-        var day = parts[2];
-        var year = parts[3];
-        var timeSplit = parts[4].split(":");
-        var hour = timeSplit[0];
-        var minute = timeSplit[1];
-        var second = timeSplit[2];
-        final = final + year + month + day + hour + minute + second;
-        return parseInt(final);
-    }
+
     for(let object in sectorData){
         if(sectorData[object]['Sector'] === route.params.title){
                 stocks[stocks.length] = {
@@ -101,12 +63,51 @@ export default function App({ route,navigation }) {
             swipeAction: 'right',
             swipedBy: firebase.auth().currentUser.uid,
             swipedOn: currentStock,
+            active: true,
             swipedOnName: currentName,
             time: getTime(),
         };
-        await firebase.firestore().collection('swipes').add(likeObject);
+        await firebase.functions().httpsCallable('addSwipeItem')(likeObject)
     }
-
+    const getTime = () => {
+        const time = new Date().toString();
+        const parts = time.split(" ");
+        var final = "";
+        var month = 0;
+        if(parts[1] === "Jan"){
+            month = 0;
+        } else if (parts[1] === "Feb") {
+            month = 1;
+        } else if (parts[1] === "Mar") {
+            month = 2;
+        } else if (parts[1] === "Apr") {
+            month = 3;
+        } else if (parts[1] === "May") {
+            month = 4;
+        } else if (parts[1] === "Jun") {
+            month = 5;
+        } else if (parts[1] === "Jul") {
+            month = 6;
+        } else if (parts[1] === "Aug") {
+            month = 7
+        } else if (parts[1] === "Sep") {
+            month = 8;
+        } else if (parts[1] === "Oct") {
+            month = 9;
+        } else if (parts[1] === "Nov") {
+            month = 10;
+        } else {
+            month = 11;
+        }
+        var day = parts[2];
+        var year = parts[3];
+        var timeSplit = parts[4].split(":");
+        var hour = timeSplit[0];
+        var minute = timeSplit[1];
+        var second = timeSplit[2];
+        final = final + year + month + day + hour + minute + second;
+        return parseInt(final);
+    }
     const handleDislike = async () => {
         
         if(stocks.slice(progress + 1).length === 0) {
@@ -124,10 +125,11 @@ export default function App({ route,navigation }) {
             swipeAction: 'left',
             swipedBy: firebase.auth().currentUser.uid,
             swipedOnName: currentName,
+            active: true,
             swipedOn: currentStock,
             time: getTime(),
         };
-        await firebase.firestore().collection('swipes').add(dislikeObject)
+        await firebase.functions().httpsCallable('addSwipeItem')(dislikeObject)
     }
     var currentName = ""
     return (

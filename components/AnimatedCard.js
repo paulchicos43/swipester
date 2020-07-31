@@ -68,7 +68,7 @@ export default function App({handleExit, inList, handleAdd, handleRemove, item})
                 }
             })
         })
-    }, [])
+    }, [item.swipeAction])
     
     
     const AnimatedTouchable = Animated.createAnimatedComponent(TouchableWithoutFeedback)
