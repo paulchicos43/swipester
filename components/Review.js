@@ -50,17 +50,19 @@ export default function App({ route, navigation }) {
     }
 
     const removeFromSelectedList = (item) => {
-        var newArray = []
-        for(var thing of selected) {
-            if(thing.swipedOn !== item.swipedOn) {
-                newArray.push(thing)
-            }
-        }
-        
-        setSelected(newArray)
+        setSelected(selected.slice().filter(thing => thing.swipedOn !== item.swipedOn))
         navigation.setParams({
             selected: selected
         })
+    }
+
+    const inList = (item) => {
+        for(var thing of selected) {
+            if(thing.swipedOn === item.swipedOn) {
+                return true
+            }
+        }
+        return false
     }
 
 
@@ -74,7 +76,7 @@ export default function App({ route, navigation }) {
             renderItem = {
                 ({item}) => 
                     (
-                    <AnimatedCard handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
+                    <AnimatedCard inList = { inList } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
                     )
             }
             />

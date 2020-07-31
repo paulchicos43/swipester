@@ -5,17 +5,13 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import Entypo from 'react-native-vector-icons/Entypo'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 const axios = require('axios')
-export default function App({handleExit, handleAdd, handleRemove, item}) {
+export default function App({handleExit, inList, handleAdd, handleRemove, item}) {
     const [position, setPosition] = useState(new Animated.ValueXY())
     const [iconColor, setIconColor] = useState("")
     const [iconName, setIconName] = useState("")
     const handleExitPress = (item) => {
         Animated.timing(position, {toValue: { x: 450, y: 0}, duration: 100, useNativeDriver: false}).start(() => {
             handleRemove(item)
-            setData({
-                textColor: 'black',
-                selected: false
-            })
             handleExit(item)
             Animated.timing(position, {toValue: { x: 0, y: 0}, duration: 0, useNativeDriver: false}).start()
         }) 
@@ -54,7 +50,20 @@ export default function App({handleExit, handleAdd, handleRemove, item}) {
             setIconColor("red")
             setIconName("long-arrow-down")
         }
-    }, [])
+        if(inList(item)) {
+            setData({
+                selected: true,
+                textColor: 'rgb(0, 122, 255)'
+            })
+        } else {
+            setData({
+                textColor: 'black',
+                selected: false
+            })
+        }
+    }, [item.swipedOn])
+    
+    
     const AnimatedTouchable = Animated.createAnimatedComponent(TouchableWithoutFeedback)
     return (
     <Animated.View style = {{useNativeDriver: true, transform: position.getTranslateTransform()}}>
