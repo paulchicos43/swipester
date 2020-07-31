@@ -1,45 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Header, Body, Title, Right, Button, Icon, Left } from 'native-base';
-import { StyleSheet, YellowBox } from 'react-native';
-import List from './List';
+import { Container, Card, CardItem, Body, Text, Spinner, DeckSwiper } from 'native-base';
+import { Animated, FlatList, TouchableWithoutFeedback, PanResponder, View } from 'react-native';
 
+import AnimatedCard from './AnimatedCard'
+import firebase from 'firebase'
+require('firebase/firestore');
 export default function App({ route, navigation }) {
-    const [seg, setSeg] = useState("right");
     const [selected, setSelected] = useState([])
-
-    const addToList = (stockTitle, swipe) => {
-        var newArray = selected
-        newArray.push({
-            title: stockTitle,
-            swipeAction: swipe,
-            shares: 0,
+    const [companies, setCompanies] = useState([])
+    const [loading, setLoading] = useState(true)
+    const axios = require('axios')
+    const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).orderBy("time", "desc").limit(20);
+    useEffect(() => {
+        query.onSnapshot(querySnapshot => {
+            const list = [];
+            querySnapshot.forEach(doc => {
+                    list.push({
+                        swipedOn: doc.get('swipedOn'),
+                        swipedOnName: doc.get('swipedOnName'),
+                        swipeAction: doc.get('swipeAction'),
+                        shares: 0,
+    
+                    });
+            })
+            setCompanies(list);
+            setLoading(false);
         });
-        setSelected(newArray)
-        navigation.setParams({
-            selected: selected,
-        })
-        return;
-    }
+    }, []);
 
-    const removeFromList = (stockTitle) => {
-        var newArray = [];
-        for(var i = 0; i < selected.length; i++) {
-            if(selected[i]['title'] !== stockTitle) {
-                newArray.push(selected[i]);
+    const removeFromCompaniesList = (item) => {
+        const symbol = item.swipedOn
+        var newList = []
+        for (var elem of companies) {
+            if(elem.swipedOn !== symbol) {
+
+                newList.push(elem)
             }
         }
+        setCompanies(newList)
+    }
+
+    const addToSelectedList = (item) => {
+        var newArray = selected
+        newArray.push(item)
         setSelected(newArray)
         navigation.setParams({
-            selected: selected,
+            selected: selected
         })
-        return;
     }
-    useEffect(() => {
-        YellowBox.ignoreWarnings(["VirtualizedList: missing keys for items, make sure to specify a key or id property on each item or provide a custom keyExtractor."]);
-    });
+
+    const removeFromSelectedList = (item) => {
+        var newArray = []
+        for(var thing of selected) {
+            if(thing.swipedOn !== item.swipedOn) {
+                newArray.push(thing)
+            }
+        }
+        
+        setSelected(newArray)
+        navigation.setParams({
+            selected: selected
+        })
+    }
+
+
+    
+    
     return (
+        !loading ?
         <Container>
-            <List addToList = { (stockTitle, swipeAction) => addToList(stockTitle, swipeAction) } removeFromList = { removeFromList } />
+            <FlatList 
+            data = { companies }
+            renderItem = {
+                ({item}) => 
+                    (
+                    <AnimatedCard handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
+                    )
+            }
+            />
+        </Container>
+        :
+        <Container style = {{justifyContent: 'center'}}>
+            <Spinner color = 'red' />
         </Container>
     );
 }

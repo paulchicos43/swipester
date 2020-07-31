@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Button, Spinner, Header, Body, DeckSwiper, Left, Right, Icon, Card, CardItem } from 'native-base';
+import { Container, Title, Spinner, Body, DeckSwiper, Card, CardItem } from 'native-base';
 import { StyleSheet, View, YellowBox } from 'react-native';
 import RenderCard from './RenderCard';
 import firebase from 'firebase';
@@ -101,6 +101,7 @@ export default function App({ route,navigation }) {
             swipeAction: 'right',
             swipedBy: firebase.auth().currentUser.uid,
             swipedOn: currentStock,
+            swipedOnName: currentName,
             time: getTime(),
         };
         await firebase.firestore().collection('swipes').add(likeObject);
@@ -122,12 +123,13 @@ export default function App({ route,navigation }) {
         const dislikeObject = {
             swipeAction: 'left',
             swipedBy: firebase.auth().currentUser.uid,
+            swipedOnName: currentName,
             swipedOn: currentStock,
             time: getTime(),
         };
         await firebase.firestore().collection('swipes').add(dislikeObject)
     }
-
+    var currentName = ""
     return (
         !loading ?
         <Container>
@@ -138,6 +140,7 @@ export default function App({ route,navigation }) {
                     dataSource={ stocks.slice(progress) }
                     renderItem={ item => {
                         currentStock = item.symbol
+                        currentName = item.title
                         return (
                             <RenderCard title = { item.title } symbol = { item.symbol }/>
                         );

@@ -51,8 +51,8 @@ exports.makeOrder = functions.https.onRequest(async (req, res) => {
         }
     }
     const url = "https://paper-api.alpaca.markets/v2/orders";
-    const result = await axios.post(url, postData, options).catch(() => res.send(403))
-    console.log(result);
+    const result = await axios.post(url, postData, options).catch((error: any) => {console.log(error); res.send(403)})
+    console.log(result.data);
     res.send(200);
 })
 

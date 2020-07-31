@@ -12,7 +12,7 @@ export default function App(props) {
 
     return (
         <>
-            <Text>{ props.title }: { value } shares</Text>
+            <Text>{ props.fullTitle }: { value } shares</Text>
             <Slider
             step = {1}
             style={{width: 400, height: 40}}

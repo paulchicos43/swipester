@@ -16,7 +16,8 @@ function MyTabs() {
             <Tab.Screen name="Swipe" component={ SectorStack }  
                 options={{
                     tabBarLabel: 'Swipe',
-                    tabBarIcon: ({ color, size }) => (
+                    tabBarIcon: ({ color, size }) => 
+                    (
                     <IconNextAwesome name='card' color = { color } size = { size } />
                     ),
                 }}

@@ -18,7 +18,7 @@ export default function App({ navigation, route }) {
                 headers: {}, 
                 data: {
                   uid: firebase.auth().currentUser.uid, // This is the body part
-                  symbol: stock.title,
+                  symbol: stock.swipedOn,
                   shares: stock.shares,
                   swipeAction: stock.swipeAction
                 }
@@ -51,7 +51,8 @@ export default function App({ navigation, route }) {
 
     const propogate = (title, value) => {
         for(var i = 0; i < selected.length; i++) {
-            if(selected[i].title === title) {
+            if(selected[i].swipedOn === title) {
+                console.log(selected[i].shares)
                 selected[i].shares = Math.floor(value);
             }
         }
@@ -69,7 +70,7 @@ export default function App({ navigation, route }) {
                 data = { selected }
                 style = {{marginTop: 20,}}
                 renderItem = { ({item}) =>{
-                    return <CartItem propogate = { propogate } title = { item.title } />
+                    return <CartItem propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
                     }
                 }
                 />
