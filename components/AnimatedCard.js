@@ -10,8 +10,7 @@ export default function App({handleExit, inList, handleAdd, handleRemove, item})
     const [iconColor, setIconColor] = useState("")
     const [iconName, setIconName] = useState("")
     const handleExitPress = (item) => {
-        Animated.timing(position, {toValue: { x: 450, y: 0}, duration: 100, useNativeDriver: false}).start(() => {
-            handleRemove(item)
+        Animated.timing(position, {toValue: { x: 450, y: 0}, duration: 300, useNativeDriver: false}).start(() => {
             handleExit(item)
             Animated.timing(position, {toValue: { x: 0, y: 0}, duration: 0, useNativeDriver: false}).start()
         }) 
@@ -50,18 +49,7 @@ export default function App({handleExit, inList, handleAdd, handleRemove, item})
             setIconColor("red")
             setIconName("long-arrow-down")
         }
-        if(inList(item)) {
-            setData({
-                selected: true,
-                textColor: 'rgb(0, 122, 255)'
-            })
-        } else {
-            setData({
-                textColor: 'black',
-                selected: false
-            })
-        }
-    }, [item.swipedOn])
+    }, [])
     
     
     const AnimatedTouchable = Animated.createAnimatedComponent(TouchableWithoutFeedback)
