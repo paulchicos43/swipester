@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Body, Text, Card, CardItem, Right } from 'native-base';
-import { Animated, View, Easing } from 'react-native';
+import { Animated, View } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import Entypo from 'react-native-vector-icons/Entypo'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import firebase from 'firebase'
 const axios = require('axios')
-export default function App({handleExit, inList, handleAdd, handleRemove, item}) {
+export default function App({prices, handleExit, inList, handleAdd, handleRemove, item}) {
     const [position, setPosition] = useState(new Animated.ValueXY())
     const [iconColor, setIconColor] = useState("")
     const [iconName, setIconName] = useState("")
@@ -68,8 +68,14 @@ export default function App({handleExit, inList, handleAdd, handleRemove, item})
                 }
             })
         })
-    }, [item.swipeAction])
-    
+        
+     }, [])
+    useEffect(() => {
+        
+        if(typeof prices[item.swipedOn] !== 'undefined') {
+            setPrice(prices[item.swipedOn].price)
+        }
+    }, [prices])
     
     const AnimatedTouchable = Animated.createAnimatedComponent(TouchableWithoutFeedback)
     return (
@@ -79,9 +85,12 @@ export default function App({handleExit, inList, handleAdd, handleRemove, item})
                 
                     <Body>
                         <AnimatedTouchable onPress = { handlePress }>
-                            <View style = {{ flexDirection: 'row', alignItems: 'center' }}>
+                            <View style = {{ flexDirection: 'row', alignItems: 'center'}}>
                                 <IconAwesome size = { 30 } name = { iconName } color = { iconColor } style = {{ marginRight: 12 }} />
-                                <Text style = {{color: data.textColor}}>{ item.swipedOnName } ({ item.swipedOn })</Text>
+                                <View>
+                                    <Text style = {{color: data.textColor}}>{ item.swipedOnName } ({ item.swipedOn })</Text>
+                                    <Text>$ { price }</Text>
+                                </View>
                             </View>
                         </AnimatedTouchable>
                     </Body>

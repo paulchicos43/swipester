@@ -11,23 +11,30 @@ export default function App({ route, navigation }) {
     const [companies, setCompanies] = useState([])
     const [loading, setLoading] = useState(true)
     const axios = require('axios')
-    const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).where("active","==",true).orderBy("time", "desc").limit(40);
+    const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).where("active","==",true).orderBy("time", "desc").limit(20);
     const isFocused = useIsFocused()
+    const [prices, setPrices] = useState({})
     useEffect(() => {
             setLoading(true)
             query.get().then(querySnapshot => {
                 const list = [];
+                var string = ""
                 querySnapshot.forEach(doc => {
+                        string = string +  doc.get('swipedOn') + ','
                         list.push({
                             swipedOn: doc.get('swipedOn'),
                             swipedOnName: doc.get('swipedOnName'),
                             swipeAction: doc.get('swipeAction'),
                             shares: 0,
-        
                         });
                 })
+                axios.get('https://sandbox.iexapis.com/stable/stock/market/batch?symbols='+ string + '&types=price&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+                .then(result => setPrices(result.data))
                 setCompanies(list);
-                setLoading(false);
+                setTimeout(() => {
+                    setLoading(false);
+                }, 450)
+                
         });
     }, [isFocused]);
 
@@ -58,7 +65,7 @@ export default function App({ route, navigation }) {
             renderItem = {
                 ({item}) => 
                     (
-                    <AnimatedCard handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
+                    <AnimatedCard prices = { prices || null } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
                     )
             }
             keyExtractor = {(item) => item.swipedOn }
