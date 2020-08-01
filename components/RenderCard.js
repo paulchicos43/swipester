@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Content, Title, Spinner, Body, Card, CardItem, Text, Left } from 'native-base';
 import { StyleSheet, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit'
+import firebase from 'firebase'
 const axios = require('axios');
 
 export default function App(props) {
@@ -32,18 +33,9 @@ export default function App(props) {
         chart: {},
     })
     const batchRequest = async () => {
-        setTimeout(async () => {
-        const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=price,advanced-stats,news,financials,recommendation-trends,stats,income,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+        const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=price,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
         const price = result.data.price
-        const EBITDA = result.data['advanced-stats'].EBITDA
-        const enterpriseValue = result.data['advanced-stats'].enterpriseValue
-        const PE = result.data['advanced-stats'].forwardPERatio
-        const netDebt = result.data.financials.financials[0].shortTermDebt + result.data.financials.financials[0].longTermDebt + result.data.financials.financials[0].currentDebt - result.data.financials.financials[0].totalCash
-        const sales = result.data.financials.financials[0].totalRevenue;
-        const buys = result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingBuy + result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingOverweight
-        const holds = result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingHold
-        const sells = result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingSell + result.data['recommendation-trends'][result.data['recommendation-trends'].length - 1].ratingUnderweight
-        const eps = result.data.stats.ttmEPS
+
         const chartData = result.data.chart
         var volatility
         var dates = new Set()
@@ -54,6 +46,46 @@ export default function App(props) {
         }
         const indicator = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/indicator/volatility?range=ytd&token=Tpk_d5ea729178384954bb5301abc99328fa')
         volatility = indicator.data.indicator[0][indicator.data.indicator[0].length - 1]
+
+        
+        
+        const cacheStats = await firebase.functions().httpsCallable("getCache")({symbol: props.symbol})
+        var EBITDA = cacheStats.data.EBITDA
+        var enterpriseValue = cacheStats.data.enterpriseValue
+        var PE = cacheStats.data.PE
+        var netDebt = cacheStats.data.netDebt
+        var sales = cacheStats.data.sales
+        var buys = cacheStats.data.buys
+        var holds = cacheStats.data.holds
+        var sells = cacheStats.data.sells
+        var eps = cacheStats.data.eps
+        if(EBITDA === null) {
+            EBITDA = "N/A"
+        }
+        if(enterpriseValue === null) {
+            enterpriseValue = "N/A"
+        }
+        if(PE === null) {
+            PE = "N/A"
+        }
+        if(netDebt === null) {
+            netDebt = "N/A"
+        }
+        if(sales === null) {
+            sales = "N/A"
+        }
+        if(buys === null) {
+            buys = "N/A"
+        }
+        if(holds === null) {
+            holds = "N/A"
+        }
+        if(sells === null) {
+            sells = "N/A"
+        }
+        if(eps === null) {
+            eps = "N/A"
+        }
         setData({
             price: price,
             enterpriseValue: enterpriseValue,
@@ -69,12 +101,11 @@ export default function App(props) {
             dataPoints: dataPoints,
             volatility: volatility
         })
-        setLoading(false);
-        }, 10)}
-
+        setLoading(false)
+    }
+       
     useEffect(() => {
         batchRequest()
-        
     }, [props.symbol])
 
     return (
@@ -122,7 +153,7 @@ export default function App(props) {
                         <Title>Core Stats</Title>
                         <Text>Enterprise Value: { data.enterpriseValue }</Text>
                         <Text>Net Debt: { data.netDebt }</Text>
-                        <Text>EBITDA { data.EBITDA }</Text>
+                        <Text>EBITDA: { data.EBITDA }</Text>
                         <Text>PE: { data.PE }</Text>
                         <Text>Volatility: { data.volatility }</Text>
                         <Text>Buys: { data.buys }</Text>

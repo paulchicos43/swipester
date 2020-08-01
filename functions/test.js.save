@@ -1,0 +1,10 @@
+const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + data.symbol + '/batch?types=advanced-stats,financials,recommendation-trends,stats,income,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+const EBITDA = iexBatchResult.data['advanced-stats'].EBITDA
+        const enterpriseValue = iexBatchResult.data['advanced-stats'].enterpriseValue
+        const PE = iexBatchResult.data['advanced-stats'].forwardPERatio
+        const netDebt = iexBatchResult.data.financials.financials[0].shortTermDebt + iexBatchResult.data.financials.financials[0].longTermDebt + iexBatchResult.data.financials.financials[0].currentDebt - iexBatchResult.data.financials.financials[0].totalCash
+        const sales = iexBatchResult.data.financials.financials[0].totalRevenue;
+        const buys = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingBuy + iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingOverweight
+        const holds = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingHold
+        const sells = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingSell + iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingUnderweight
+        const eps = iexBatchResult.data.stats.ttmEPS

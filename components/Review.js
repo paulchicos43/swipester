@@ -14,6 +14,7 @@ export default function App({ route, navigation }) {
     const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).where("active","==",true).orderBy("time", "desc").limit(40);
     const isFocused = useIsFocused()
     useEffect(() => {
+            setLoading(true)
             query.get().then(querySnapshot => {
                 const list = [];
                 querySnapshot.forEach(doc => {

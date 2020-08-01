@@ -81,3 +81,46 @@ exports.addSwipeItem = functions.https.onCall(async (data, context) => {
     admin.firestore().collection('swipes').add(data)
     return;
 })
+
+exports.getCache = functions.https.onCall(async (data, context) => {
+    const databaseResult = await admin.firestore().collection('cache').doc(data.symbol).get()
+    if(databaseResult.exists) {
+        return databaseResult.data()
+    } else {
+        const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + data.symbol + '/batch?types=advanced-stats,financials,recommendation-trends,stats,income,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+        const EBITDA = iexBatchResult.data['advanced-stats'].EBITDA
+        const enterpriseValue = iexBatchResult.data['advanced-stats'].enterpriseValue
+        const PE = iexBatchResult.data['advanced-stats'].forwardPERatio
+        const netDebt = iexBatchResult.data.financials.financials[0].shortTermDebt + iexBatchResult.data.financials.financials[0].longTermDebt + iexBatchResult.data.financials.financials[0].currentDebt - iexBatchResult.data.financials.financials[0].totalCash
+        const sales = iexBatchResult.data.financials.financials[0].totalRevenue;
+        const buys = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingBuy + iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingOverweight
+        const holds = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingHold
+        const sells = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingSell + iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingUnderweight
+        const eps = iexBatchResult.data.stats.ttmEPS
+        admin.firestore().collection('cache').doc(data.symbol).set({
+            EBITDA: EBITDA,
+            enterpriseValue: enterpriseValue,
+            PE: PE,
+            netDebt: netDebt,
+            sales: sales,
+            buys: buys,
+            holds: holds,
+            sells: sells,
+            eps: eps,
+        })
+        return {
+                EBITDA: EBITDA,
+                enterpriseValue: enterpriseValue,
+                PE: PE,
+                netDebt: netDebt,
+                sales: sales,
+                buys: buys,
+                holds: holds,
+                sells: sells,
+                eps: eps,
+            }
+    }
+
+
+
+})
