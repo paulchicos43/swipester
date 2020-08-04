@@ -41,7 +41,7 @@ export default function App({ navigation, route }) {
             <Header searchBar rounded>
                 <Item>
                     <Icon name = 'ios-search' />
-                    <Input onChangeText = { (value) => setSearchValue(value) } placeholder = "Tesla" />
+                    <Input onChangeText = { (value) => setSearchValue(value) } placeholder = "Apple" />
                 </Item>
             </Header>
             <FlatList

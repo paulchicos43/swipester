@@ -1,7 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack'
 import Review from '../components/Review'
 import { Button } from 'react-native'
-import Cart from '../components/Cart'
 import Alpaca from '../components/Alpaca'
 import React from 'react'
 import firebase from 'firebase'

@@ -118,7 +118,6 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                 <CardItem>
                     <CartItem propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
                 </CardItem>
-                
             </Card>
         </Animated.View>
 
