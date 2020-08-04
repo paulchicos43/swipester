@@ -8,6 +8,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import ReviewStack from './ReviewStack'
 import React from 'react'
 import SearchStack from './SearchStack'
+import HoldingsStack from './HoldingsStack'
+import FontAwesome from 'react-native-vector-icons/FontAwesome'
 
 const Tab = createBottomTabNavigator()
 function MyTabs() {
@@ -30,6 +32,16 @@ function MyTabs() {
                     ),
                 }}
             />
+            <Tab.Screen 
+                name = "Holdings"
+                component = { HoldingsStack }
+                options = {{
+                    tabBarLabel: "Holdings",
+                    tabBarIcon: ({ color, size }) => (
+                        <FontAwesome color = { color } size = { size } name = 'briefcase' />
+                    )
+                }}
+            />
             <Tab.Screen name = "Search"
                 component = { SearchStack }
                 options = {{
@@ -39,6 +51,7 @@ function MyTabs() {
                     )
                 }}
             />
+
         </Tab.Navigator>
   );
 }

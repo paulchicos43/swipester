@@ -120,7 +120,14 @@ exports.getCache = functions.https.onCall(async (data, context) => {
                 eps: eps,
             }
     }
+})
 
-
-
+exports.getPositions = functions.https.onCall(async (data, context) => {
+    const doc = await admin.firestore().collection('response').doc(context.auth?.uid).get()
+    const result = await axios.get("https://paper-api.alpaca.markets/v2/positions", {
+        headers: {
+            'Authorization': doc.data().token_type + ' ' + doc.data().access_token,
+        }
+    })
+    return result.data
 })
