@@ -2,10 +2,12 @@ import { createStackNavigator } from '@react-navigation/stack'
 import Review from '../components/Review'
 import { Button } from 'react-native'
 import Alpaca from '../components/Alpaca'
-import React from 'react'
+import React, { useState } from 'react'
 import firebase from 'firebase'
-const axios = require('axios')
+import Confirmation from '../components/Confirmation'
+require('firebase/functions')
 const Stack = createStackNavigator()
+
 export default function App() {
     return (
             <Stack.Navigator>
@@ -15,28 +17,38 @@ export default function App() {
                 initialParams = {{ selected: [], }}
                 options = {
                     ({route, navigation}) => ({
-                        headerRight: () => <Button onPress = { () => {
-                            for(let stock of route.params.selected){
-                                if(stock.shares > 0){
-                                    axios({
-                                        method: 'post',
-                                        url: 'https://us-central1-swipesta-2b989.cloudfunctions.net/makeOrder',
-                                        headers: {}, 
-                                        data: {
-                                        uid: firebase.auth().currentUser.uid, // This is the body part
-                                        symbol: stock.swipedOn,
-                                        shares: stock.shares,
-                                        swipeAction: stock.swipeAction
-                                        }
-                                    });
+                        headerRight: () => 
+                        <Button onPress = { async () => {
+                            if(route.params.selected.length != 0){
+                                var orderResults = []
+                                for(let stock of route.params.selected){
+                                    if(stock.shares > 0){
+                                        const result = await firebase.functions().httpsCallable('makeOrder')({
+                                            symbol: stock.swipedOn,
+                                            shares: stock.shares,
+                                            swipeAction: stock.swipeAction
+                                        })
+                                        orderResults[orderResults.length] = result.data
+                                    }
                                 }
+                                navigation.navigate("Confirmation", {
+                                    orderResults: orderResults
+                                })
+                            } else {
+                                alert("You must select a stock.")
                             }
-                            alert("Order placed. Will execute shortly.");
                         } } title = "Buy" />,
                         headerLeft: () => null,
                         gestureEnabled: false,
                     })
                 }
+                />
+                <Stack.Screen 
+                name = "Confirmation"
+                component = { Confirmation }
+                options = {{
+
+                }}
                 />
                 <Stack.Screen
                 name = "Alpaca"

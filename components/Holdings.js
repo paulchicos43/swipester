@@ -1,27 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import firebase from 'firebase'
 require('firebase/functions')
-import { Container, Card, CardItem, Text, Title, Body } from 'native-base'
+import { Container, Card, CardItem, Text, Title, Body, Spinner } from 'native-base'
 import { FlatList } from 'react-native'
+import { useIsFocused } from '@react-navigation/native'
 
 
 export default function App({ navigation, route }) {
-
+    const isFocused = useIsFocused()
+    const [loading, setLoading] = useState(true)
     const [holdings, setHoldings] = useState([])
     useEffect(() => {
+        setLoading(true)
         firebase.functions().httpsCallable('getPositions')()
         .then(result => {
             setHoldings(result.data)
+            setLoading(false)
         })
         return;
-    }, [])
+    }, [isFocused])
 
 
 
 
 
     return (
-        <Container>
+        !loading ? <Container>
             <FlatList 
                 data = { holdings }
                 renderItem = {({item}) => (
@@ -38,7 +42,14 @@ export default function App({ navigation, route }) {
                         </CardItem>
                     </Card>
                 )}
+                keyExtractor = {(item) => (
+                    item.symbol
+                )}
             />
+        </Container>
+        :
+        <Container style = {{ justifyContent: 'center' }}>
+            <Spinner color = 'red' />
         </Container>
     )
 }

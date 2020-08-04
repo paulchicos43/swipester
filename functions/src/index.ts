@@ -29,21 +29,21 @@ exports.redirectURI = functions.https.onRequest((req, res) => {
     });
 });
 
-exports.makeOrder = functions.https.onRequest(async (req, res) => {
+exports.makeOrder = functions.https.onCall(async (data, context) => {
     let action = '';
-    if(req.body.swipeAction === 'right') {
+    if(data.swipeAction === 'right') {
         action = 'buy'
     } else {
         action = 'sell'
     }
     const postData = {
-        symbol: req.body.symbol,
-        qty: req.body.shares,
+        symbol: data.symbol,
+        qty: data.shares,
         side: action,
         type: 'market',
         time_in_force: 'day',
     };
-    const doc = await admin.firestore().collection('response').doc(req.body.uid).get()
+    const doc = await admin.firestore().collection('response').doc(context.auth?.uid).get()
     const options = {
         headers: {
             'Content-Type': 'application/json',
@@ -51,9 +51,8 @@ exports.makeOrder = functions.https.onRequest(async (req, res) => {
         }
     }
     const url = "https://paper-api.alpaca.markets/v2/orders";
-    const result = await axios.post(url, postData, options).catch((error: any) => {console.log(error); res.send(403)})
-    console.log(result.data);
-    res.send(200);
+    const result = await axios.post(url, postData, options).catch((error: any) => {return error})
+    return result.data
 })
 
 exports.getBalance = functions.https.onRequest(async (req, res) => {
