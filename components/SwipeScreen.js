@@ -15,7 +15,6 @@ export default function App({ route,navigation }) {
     const [progress, setProgress] = useState(0);
     var currentStock = ""
     var stocks = [];
-
     for(let object in sectorData){
         if(sectorData[object]['Sector'] === route.params.title){
                 stocks[stocks.length] = {
@@ -55,7 +54,7 @@ export default function App({ route,navigation }) {
         }
         numberOfSwipes = numberOfSwipes + 1
         if(numberOfSwipes === 10) {
-            alert("You've swiped 10 times.")
+            alert("Nice! You've swiped ten times. You can keep going or review your current swipes.")
             numberOfSwipes = 0
         }
         await incrementSector(route.params.title)
@@ -109,7 +108,19 @@ export default function App({ route,navigation }) {
         return parseInt(final);
     }
     const handleDislike = async () => {
-        
+        const url = "https://paper-api.alpaca.markets/v2/assets/" + currentStock
+        const keys = await firebase.firestore().collection('response').doc(firebase.auth().currentUser.uid).get()
+        const options = {
+            headers: {
+                'Authorization': keys.data().token_type + " " + keys.data().access_token,
+            }
+        }
+        const shortableResult = await axios.get(url, options)
+        if(shortableResult.data.easy_to_borrow === false) {
+            alert("Unfortunately, you cannot short this stock.")
+            await incrementSector(route.params.title)
+            return
+        }
         if(stocks.slice(progress + 1).length === 0) {
             alert('You\'ve reached the end of the deck.')
             resetDeck(route.params.title)
@@ -117,7 +128,7 @@ export default function App({ route,navigation }) {
         }
         numberOfSwipes = numberOfSwipes + 1
         if(numberOfSwipes === 10) {
-            alert("You've swiped 10 times.")
+            alert("Nice! You've swiped ten times. You can keep going or review your current swipes.")
             numberOfSwipes = 0
         }
         await incrementSector(route.params.title)

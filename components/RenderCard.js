@@ -33,9 +33,9 @@ export default function App(props) {
         chart: {},
     })
     const batchRequest = async () => {
+
         const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=price,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
         const price = result.data.price
-
         const chartData = result.data.chart
         var volatility
         var dates = new Set()
@@ -46,9 +46,6 @@ export default function App(props) {
         }
         const indicator = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/indicator/volatility?range=ytd&token=Tpk_d5ea729178384954bb5301abc99328fa')
         volatility = indicator.data.indicator[0][indicator.data.indicator[0].length - 1]
-
-        
-        
         const cacheStats = await firebase.functions().httpsCallable("getCache")({symbol: props.symbol})
         var EBITDA = cacheStats.data.EBITDA
         var enterpriseValue = cacheStats.data.enterpriseValue
@@ -101,7 +98,8 @@ export default function App(props) {
             dataPoints: dataPoints,
             volatility: volatility
         })
-        setLoading(false)
+        return setLoading(false)
+        
     }
        
     useEffect(() => {
@@ -174,7 +172,7 @@ export default function App(props) {
             <CardItem style = {{height: 600,}}>
                 <Body>
                 <Container style = {{ alignSelf: 'center', justifyContent: 'center' }}>
-                <Spinner color = 'red' />
+                    <Spinner color = 'red' />
                 </Container>
                 </Body>
             </CardItem>

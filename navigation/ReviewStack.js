@@ -4,7 +4,8 @@ import { Button } from 'react-native'
 import Cart from '../components/Cart'
 import Alpaca from '../components/Alpaca'
 import React from 'react'
-
+import firebase from 'firebase'
+const axios = require('axios')
 const Stack = createStackNavigator()
 export default function App() {
     return (
@@ -16,19 +17,27 @@ export default function App() {
                 options = {
                     ({route, navigation}) => ({
                         headerRight: () => <Button onPress = { () => {
-                        
-                            navigation.push("Cart", {
-                                selected: route.params.selected
-                            })
-                        } } title = "Next" />,
+                            for(let stock of route.params.selected){
+                                if(stock.shares > 0){
+                                    axios({
+                                        method: 'post',
+                                        url: 'https://us-central1-swipesta-2b989.cloudfunctions.net/makeOrder',
+                                        headers: {}, 
+                                        data: {
+                                        uid: firebase.auth().currentUser.uid, // This is the body part
+                                        symbol: stock.swipedOn,
+                                        shares: stock.shares,
+                                        swipeAction: stock.swipeAction
+                                        }
+                                    });
+                                }
+                            }
+                            alert("Order placed. Will execute shortly.");
+                        } } title = "Buy" />,
                         headerLeft: () => null,
                         gestureEnabled: false,
                     })
                 }
-                />
-                <Stack.Screen 
-                name = "Cart"
-                component = { Cart }
                 />
                 <Stack.Screen
                 name = "Alpaca"

@@ -1,13 +1,13 @@
 import Login from '../components/Login';
-import Review from '../components/Review';
 import SectorStack from './SectorStack'
 import { createStackNavigator } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import IconNextAwesome from 'react-native-vector-icons/MaterialCommunityIcons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import ReviewStack from './ReviewStack'
 import React from 'react'
+import SearchStack from './SearchStack'
 
 const Tab = createBottomTabNavigator()
 function MyTabs() {
@@ -28,6 +28,15 @@ function MyTabs() {
                     tabBarIcon: ({ color, size }) => (
                     <IconNextAwesome name='cart' size = {size} color = {color} />
                     ),
+                }}
+            />
+            <Tab.Screen name = "Search"
+                component = { SearchStack }
+                options = {{
+                    tabBarLabel: 'Search',
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialIcons name = 'search' size = { size } color = { color } />
+                    )
                 }}
             />
         </Tab.Navigator>

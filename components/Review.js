@@ -15,6 +15,10 @@ export default function App({ route, navigation }) {
     const isFocused = useIsFocused()
     const [prices, setPrices] = useState({})
     useEffect(() => {
+            setSelected([])
+            navigation.setParams({
+                selected: selected,
+            })
             setLoading(true)
             query.get().then(querySnapshot => {
                 const list = [];
@@ -33,7 +37,7 @@ export default function App({ route, navigation }) {
                 setCompanies(list);
                 setTimeout(() => {
                     setLoading(false);
-                }, 450)
+                }, 500)
                 
         });
     }, [isFocused]);
@@ -65,7 +69,7 @@ export default function App({ route, navigation }) {
             renderItem = {
                 ({item}) => 
                     (
-                    <AnimatedCard prices = { prices || null } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
+                    <AnimatedCard selected = { selected } prices = { prices } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
                     )
             }
             keyExtractor = {(item) => item.swipedOn }

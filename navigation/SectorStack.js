@@ -38,7 +38,11 @@ export default function App() {
                 <Stack.Screen 
                 name = "SwipeScreen"
                 component = { SwipeScreen }
-                options = {({route}) => ({title: route.params.title})}
+                options = {({route}) => (
+                    {
+                        title: route.params.title,
+                        gestureEnabled: false,
+                    })}
                 />
             </Stack.Navigator>
     )
