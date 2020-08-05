@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Spinner } from 'native-base';
+import { Container, Spinner, Segment, Header, Button, Text } from 'native-base';
 import { FlatList} from 'react-native';
 import { useIsFocused } from '@react-navigation/native'
 
@@ -61,11 +61,20 @@ export default function App({ route, navigation }) {
             selected: selected
         })
     }
+    const [active, setActive] = useState(true)
     return (
         !loading ?
         <Container>
+            <Segment>
+                <Button first onPress = {() => setActive(true)} active = {active}>
+                    <Text>Longs</Text>
+                </Button>
+                <Button last onPress = {() => setActive(false)} active = {!active}>
+                    <Text>Shorts</Text>
+                </Button>
+            </Segment>
             <FlatList 
-            data = { companies }
+            data = { companies.slice().filter(item => {if(active) { return item.swipeAction !== 'left' } else {return item.swipeAction !== 'right'}}) }
             renderItem = {
                 ({item}) => 
                     (
