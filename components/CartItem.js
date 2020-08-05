@@ -12,7 +12,7 @@ export default function App(props) {
 
     return (
         <View>
-            <Text>{ value } shares</Text>
+            <Text>{ value } shares, ($ { value * props.price })</Text>
             <Slider
                 step = {1}
                 style={{width: 350, height: 40}}

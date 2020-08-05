@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Spinner, Body, DeckSwiper, Card, CardItem } from 'native-base';
+import { Container, Title, Spinner, Body, DeckSwiper, Button, Text, Card, CardItem } from 'native-base';
 import { StyleSheet, View, YellowBox } from 'react-native';
 import RenderCard from './RenderCard';
 import firebase from 'firebase';
@@ -143,12 +143,15 @@ export default function App({ route,navigation }) {
         await firebase.functions().httpsCallable('addSwipeItem')(dislikeObject)
     }
     var currentName = ""
+    const [_deckSwiper, set_DeckSwiper] = useState()
     return (
         !loading ?
+        <Container>
         <Container>
             <View>
                 <Title/>
                 <DeckSwiper
+                    ref={(c) => set_DeckSwiper(c)}
                     style = {{useNativeDriver: true,}}
                     dataSource={ stocks.slice(progress) }
                     renderItem={ item => {
@@ -168,12 +171,17 @@ export default function App({ route,navigation }) {
                                 </Container>
                             </Body>
                         </CardItem>
+                        
                     </Card>
                 }
                     onSwipeLeft = { handleDislike }
                     onSwipeRight = { handleLike }
                 />
+                
             </View>
+            
+        </Container>
+        <Button onPress = { () => _deckSwiper._root.swipeRight() } block><Text>Skip</Text></Button>
         </Container>
         :
         <Container style = { styles.spinner }>

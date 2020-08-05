@@ -99,17 +99,15 @@ export default function App({ navigation }) {
     useEffect(() => checkIfLoggedIn());
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const handleSignin = () => {
-      firebase.auth().signInWithEmailAndPassword(email, password)
+
+    const handlePress = () => {
+      firebase.auth().createUserWithEmailAndPassword(email, password)
       .catch(error => {
-          alert(error);
+        firebase.auth().signInWithEmailAndPassword(email, password)
+        .catch(error => {
+          alert(error)
+        })
       })
-    }
-    const handleRegister = () => {
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-    .catch(error => {
-      alert(error);
-    })
     }
     return (
       <Container>
@@ -120,8 +118,7 @@ export default function App({ navigation }) {
           <Item>
             <Input secureTextEntry = { true } onChangeText = { value => setPassword(value) } placeholder = 'password' />
           </Item>
-          <Button onPress = { handleSignin } primary block><Text>Sign In</Text></Button>
-          <Button onPress = { handleRegister } style = { styles.button } primary block><Text>Register</Text></Button>
+          <Button onPress = { handlePress } primary block><Text>Sign In/Register</Text></Button>
           <Button onPress = { () => signInWithGoogleAsync() } style = { styles.button } primary block><Text>Google Sign In</Text></Button>
         </Form>
         

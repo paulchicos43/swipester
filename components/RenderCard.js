@@ -108,8 +108,8 @@ export default function App(props) {
 
     return (
         !loading ?
-        <Card style={{ elevation: 3, }}>
-            <CardItem style = {{height: 600,}}>
+        <Card style={{ elevation: 3 }}>
+            <CardItem style = {{height: 600 }}>
                 
                 <Body>
                     <Content>

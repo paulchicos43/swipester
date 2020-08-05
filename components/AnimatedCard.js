@@ -116,7 +116,7 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                     </Right>
                 </CardItem>
                 <CardItem>
-                    <CartItem propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
+                    <CartItem price = { price } propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
                 </CardItem>
             </Card>
         </Animated.View>
