@@ -3,9 +3,6 @@ import { Container, Content } from 'native-base';
 import { StyleSheet } from 'react-native';
 import SectorCard from './SectorCard';
 import AsyncStorage from '@react-native-community/async-storage';
-var mixpanel = require('mixpanel-browser');
-
-mixpanel.init("6d9151e0235a322d90be478a21cbb237");
 const resetStorage = async () => {
     await AsyncStorage.setItem('Energy', '0');
     await AsyncStorage.setItem('Materials', '0');
