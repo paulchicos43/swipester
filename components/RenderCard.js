@@ -174,8 +174,8 @@ export default function App(props) {
                         data = {news}
                         renderItem = {({item}) => (
                             <ListItem style = {{ flexDirection: 'column' }}>
-                                <Title>{ item.headline }</Title>
-                                <Text>{ item.summary }</Text>
+                                <Text style = {{ alignSelf: 'flex-start', fontWeight: '700', marginBottom: 10, }}>{ item.headline.trim() }</Text>
+                                <Text>{ item.summary.trim() }</Text>
                             </ListItem>
                         )}/>
                     </Body>
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     title: {
-        fontSize: 30,
+        fontSize: 20,
         alignSelf: 'center',
     },
     subtitle: {
