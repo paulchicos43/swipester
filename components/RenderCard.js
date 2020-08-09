@@ -103,7 +103,7 @@ export default function App(props) {
     }
     const [news, setNews] = useState([])
     const getNews = async () => {
-        const result = await axios.get('https://cloud.iexapis.com/stable/stock/'+ props.symbol +'/news?token=pk_622e4c0492694e5d94c202c5612934f9')
+        const result = await axios.get('https://sandbox.iexapis.com/stable/stock/'+ props.symbol +'/news?token=Tpk_d5ea729178384954bb5301abc99328fa')
         let test = []
         for(let res of result.data) {
             test.push(res)
@@ -119,7 +119,7 @@ export default function App(props) {
     return (
         !loading ?
         <Card style={{ elevation: 3 }}>
-            <CardItem style = {{height: 600 }}>
+            <CardItem style = {{height: 650 }}>
                 
                 <Body>
                     <Content>
@@ -186,7 +186,7 @@ export default function App(props) {
         </Card>
         :
         <Card style={{ elevation: 3, }}>
-            <CardItem style = {{height: 600,}}>
+            <CardItem style = {{height: 650,}}>
                 <Body>
                 <Container style = {{ alignSelf: 'center', justifyContent: 'center' }}>
                     <Spinner color = 'red' />
