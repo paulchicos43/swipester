@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Content, Title, Spinner, Body, Card, CardItem, Text, Left } from 'native-base';
-import { StyleSheet, Dimensions } from 'react-native';
+import { Container, Content, Title, Spinner, Body, Card, CardItem, Text, ListItem } from 'native-base';
+import { StyleSheet, Dimensions, FlatList } from 'react-native';
 import { LineChart } from 'react-native-chart-kit'
 import firebase from 'firebase'
 const axios = require('axios');
@@ -101,9 +101,19 @@ export default function App(props) {
         return setLoading(false)
         
     }
-       
+    const [news, setNews] = useState([])
+    const getNews = async () => {
+        const result = await axios.get('https://cloud.iexapis.com/stable/stock/'+ props.symbol +'/news?token=pk_622e4c0492694e5d94c202c5612934f9')
+        let test = []
+        for(let res of result.data) {
+            test.push(res)
+        }
+        setNews(test)
+        return
+    }
     useEffect(() => {
         batchRequest()
+        getNews()
     }, [props.symbol])
 
     return (
@@ -160,7 +170,14 @@ export default function App(props) {
                         <Text>Sales: { data.sales }</Text>
                         <Text>EPS: { data.eps }</Text>
                         <Title>News</Title>
-                        
+                        <FlatList 
+                        data = {news}
+                        renderItem = {({item}) => (
+                            <ListItem style = {{ flexDirection: 'column' }}>
+                                <Title>{ item.headline }</Title>
+                                <Text>{ item.summary }</Text>
+                            </ListItem>
+                        )}/>
                     </Body>
                     </Content>
                 </Body>

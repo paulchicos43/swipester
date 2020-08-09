@@ -113,10 +113,10 @@ export default function App({ navigation }) {
       <Container>
         <Form style = { styles.container }>
           <Item>
-            <Input onChangeText = { value => setEmail(value) } placeholder = 'Username' />
+            <Input autoCapitalize = 'none' autoCorrect = { false } onChangeText = { value => setEmail(value) } placeholder = 'Username' />
           </Item>
           <Item>
-            <Input secureTextEntry = { true } onChangeText = { value => setPassword(value) } placeholder = 'password' />
+            <Input autoCorrect = { false } secureTextEntry = { true } onChangeText = { value => setPassword(value) } placeholder = 'password' />
           </Item>
           <Button onPress = { handlePress } primary block><Text>Sign In/Register</Text></Button>
           <Button onPress = { () => signInWithGoogleAsync() } style = { styles.button } primary block><Text>Google Sign In</Text></Button>
