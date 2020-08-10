@@ -98,7 +98,7 @@ export default function App(props) {
             dataPoints: dataPoints,
             volatility: volatility
         })
-        return setLoading(false)
+        return
         
     }
     const [news, setNews] = useState([])
@@ -111,9 +111,28 @@ export default function App(props) {
         setNews(test)
         return
     }
+
+    const getHoldings = async () => {
+        const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
+        return result.data
+    }
+    const [holdings, setHoldings] = useState(0)
     useEffect(() => {
         batchRequest()
-        getNews()
+        .then(() => {
+           getNews() 
+        })
+        .then(() => {
+            getHoldings()
+            .then(result => setHoldings(result)) 
+        })
+        .then(() => {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+            
+        })
+        
     }, [props.symbol])
 
     return (
@@ -124,6 +143,7 @@ export default function App(props) {
                 <Body>
                     <Content>
                     <Title style = { styles.title } >{ props.title }</Title>
+                    <Title>Current Holdings: { holdings }</Title>
                     <Body>
                         
                         <Text style = { styles.subtitle } >$ { data.price }</Text>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Body, Text, Card, CardItem, Right } from 'native-base';
+import { Body, Text, Card, CardItem, Right, Title } from 'native-base';
 import { Animated, View } from 'react-native';
 import CartItem from '../components/CartItem'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
@@ -38,7 +38,11 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                 })
             }
     }
-
+    const getHoldings = async () => {
+        const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: item.swipedOn })
+        return result.data
+    }
+    const [holdings, setHoldings] = useState(0)
     useEffect(() => {
         if(item.swipeAction === 'right') {
             setIconColor("green")
@@ -47,7 +51,10 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
             setIconColor("red")
             setIconName("long-arrow-down")
         }
-        
+        getHoldings()
+        .then(result => {
+            setHoldings(result)
+        })
      }, [])
     useEffect(() => {
         
@@ -115,7 +122,9 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                         </AnimatedTouchable>
                     </Right>
                 </CardItem>
+                <Title>Holdings: { holdings }</Title>
                 <CardItem>
+                    
                     <CartItem price = { price } propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
                 </CardItem>
             </Card>
