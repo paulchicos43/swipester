@@ -2,8 +2,23 @@ import React, {useState, useEffect} from 'react';
 import { Container, Form, Input, Item, Button, Text } from 'native-base';
 import { StyleSheet } from 'react-native';
 import firebase from 'firebase';
+import * as Facebook from 'expo-facebook'
 import * as Google from 'expo-google-app-auth';
 
+const Facebooklogin = async () => {
+  Facebook.initializeAsync('938605213303146', 'Swipester')
+  const { type, token } = await
+  Facebook.logInWithReadPermissionsAsync(
+         "938605213303146",{
+                permission: "public_profile"
+      } 
+  );
+    const credential = firebase.auth.FacebookAuthProvider.credential(token);
+  firebase.auth().signInWithCredential(credential)
+  .catch(error => {
+    console.log(error);
+  });
+}
 const isUserEqual = (googleUser, firebaseUser) => {
   if (firebaseUser) {
     var providerData = firebaseUser.providerData;
@@ -120,6 +135,7 @@ export default function App({ navigation }) {
           </Item>
           <Button onPress = { handlePress } primary block><Text>Sign In/Register</Text></Button>
           <Button onPress = { () => signInWithGoogleAsync() } style = { styles.button } primary block><Text>Google Sign In</Text></Button>
+          <Button onPress = { () => Facebooklogin() } style = { styles.button } primary block><Text>Facebook Sign In</Text></Button>
         </Form>
         
       </Container>

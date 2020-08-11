@@ -7,4 +7,5 @@ target 'Swipester' do
 
   # Pods for Swipester
   pod 'GoogleSignIn', '~> 5.0.2'
+  pod 'FBSDKLoginKit'
 end
