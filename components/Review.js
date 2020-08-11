@@ -61,27 +61,36 @@ export default function App({ route, navigation }) {
             selected: selected
         })
     }
-    const [active, setActive] = useState(true)
+    const [activeView, setActiveView] = useState(true)
+    const [activeTradeType, setActiveTradeType] = useState(true)
     return (
         !loading ?
         <Container>
             <Segment>
-                <Button first onPress = {() => setActive(true)} active = {active}>
+                <Button first onPress = {() => setActiveView(true)} active = {activeView}>
                     <Text>Longs</Text>
                 </Button>
-                <Button last onPress = {() => setActive(false)} active = {!active}>
+                <Button last onPress = {() => setActiveView(false)} active = {!activeView}>
                     <Text>Shorts</Text>
                 </Button>
             </Segment>
+            <Segment>
+                <Button first onPress = {() => {setActiveTradeType(true); navigation.setParams({ tradeType: 'paper' })}} active = {activeTradeType}>
+                    <Text>Paper</Text>
+                </Button>
+                <Button last onPress = {() => {setActiveTradeType(false); navigation.setParams({ tradeType: 'real' })}} active = {!activeTradeType}>
+                    <Text>Real</Text>
+                </Button>
+            </Segment>
             <FlatList 
-            data = { companies.slice().filter(item => {if(active) { return item.swipeAction !== 'left' } else {return item.swipeAction !== 'right'}}) }
-            renderItem = {
-                ({item}) => 
-                    (
-                    <AnimatedCard selected = { selected } prices = { prices } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
-                    )
-            }
-            keyExtractor = {(item) => item.swipedOn }
+                data = { companies.slice().filter(item => {if(activeView) { return item.swipeAction !== 'left' } else {return item.swipeAction !== 'right'}}) }
+                renderItem = {
+                    ({item}) => 
+                        (
+                        <AnimatedCard selected = { selected } prices = { prices } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
+                        )
+                }
+                keyExtractor = {(item) => item.swipedOn }
             />
         </Container>
         :

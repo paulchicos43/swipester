@@ -30,6 +30,7 @@ exports.redirectURI = functions.https.onRequest((req, res) => {
 });
 
 exports.makeOrder = functions.https.onCall(async (data, context) => {
+    const tradeType = data.tradeType
     let action = '';
     if(data.swipeAction === 'right') {
         action = 'buy'
@@ -50,7 +51,14 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
             'Authorization': doc.data().token_type + " " + doc.data().access_token,
         }
     }
-    const url = "https://paper-api.alpaca.markets/v2/orders";
+    let url = ""
+    console.log(tradeType)
+    if(tradeType === 'paper'){
+        url = "https://paper-api.alpaca.markets/v2/orders"
+    } else {
+        url = "api.alpaca.markets"
+    }
+    
     const result = await axios.post(url, postData, options).catch((error: any) => {return error})
     return result.data
 })

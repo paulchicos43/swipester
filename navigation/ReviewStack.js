@@ -12,52 +12,53 @@ export default function App() {
     return (
             <Stack.Navigator>
                 <Stack.Screen 
-                name = "Review"
-                component = { Review }
-                initialParams = {{ selected: [], }}
-                options = {
-                    ({route, navigation}) => ({
-                        headerRight: () => 
-                        <Button onPress = { async () => {
-                            if(route.params.selected.length != 0){
-                                var orderResults = []
-                                for(let stock of route.params.selected){
-                                    if(stock.shares > 0){
-                                        const result = await firebase.functions().httpsCallable('makeOrder')({
-                                            symbol: stock.swipedOn,
-                                            shares: stock.shares,
-                                            swipeAction: stock.swipeAction
-                                        })
-                                        orderResults[orderResults.length] = result.data
+                    name = "Review"
+                    component = { Review }
+                    initialParams = {{ selected: [], }}
+                    options = {
+                        ({route, navigation}) => ({
+                            headerRight: () => 
+                            <Button onPress = { async () => {
+                                if(route.params.selected.length != 0){
+                                    var orderResults = []
+                                    for(let stock of route.params.selected){
+                                        if(stock.shares > 0){
+                                            const result = await firebase.functions().httpsCallable('makeOrder')({
+                                                symbol: stock.swipedOn,
+                                                shares: stock.shares,
+                                                swipeAction: stock.swipeAction,
+                                                tradeType: route.params.tradeType
+                                            })
+                                            orderResults[orderResults.length] = result.data
+                                        }
                                     }
+                                    navigation.navigate("Confirmation", {
+                                        orderResults: orderResults
+                                    })
+                                } else {
+                                    alert("You must select a stock.")
                                 }
-                                navigation.navigate("Confirmation", {
-                                    orderResults: orderResults
-                                })
-                            } else {
-                                alert("You must select a stock.")
-                            }
-                        } } title = "Buy" />,
-                        headerLeft: () => null,
-                        gestureEnabled: false,
-                    })
-                }
+                            } } title = "Buy" />,
+                            headerLeft: () => null,
+                            gestureEnabled: false,
+                        })
+                    }
                 />
                 <Stack.Screen 
-                name = "Confirmation"
-                component = { Confirmation }
-                options = {{
+                    name = "Confirmation"
+                    component = { Confirmation }
+                    options = {{
 
-                }}
+                    }}
                 />
                 <Stack.Screen
-                name = "Alpaca"
-                component = { Alpaca }
-                options = {({navigation, route}) => ({
-                    headerLeft: () => null,
-                    gestureEnabled: false,
-                    headerRight: () => <Button onPress = { () => navigation.navigate("Review") } title = "Done" />
-                })}
+                    name = "Alpaca"
+                    component = { Alpaca }
+                    options = {({navigation, route}) => ({
+                        headerLeft: () => null,
+                        gestureEnabled: false,
+                        headerRight: () => <Button onPress = { () => navigation.navigate("Review") } title = "Done" />
+                    })}
                 />
             </Stack.Navigator>
     )
