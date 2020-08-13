@@ -162,36 +162,4 @@ exports.getHoldingNumber = functions.https.onCall(async (data, context) => {
 
 
 
-// const getMarketcap = async (symbol: string) => {
-//     const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/batch?types=advanced-stats,price&token=Tsk_47aba52e64214057b138bb7b57e751f7')
-//     const price = iexBatchResult.data.price
-//     const sharesOutstanding = iexBatchResult.data['advanced-stats'].sharesOutstanding
-//     return price * sharesOutstanding
-// }
 
-// const getEBITDA = async (symbol: string) => {
-//     const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/batch?types=advanced-stats&token=Tsk_47aba52e64214057b138bb7b57e751f7')
-//     return iexBatchResult.data['advanced-stats'].EBITDA
-// }
-
-// const getNetDebt = async (symbol: string) => {
-//     const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/batch?types=balance-sheet,financials&token=Tsk_47aba52e64214057b138bb7b57e751f7')
-//     const currentCash = iexBatchResult.data['balance-sheet'].currentCash
-//     const shortTermInvestments = iexBatchResult.data['balance-sheet'].shortTermInvestments
-//     const totalCash = currentCash + shortTermInvestments
-//     const totalDebt = iexBatchResult.data.financials.totalDebt
-//     const netDebt = totalCash + totalDebt
-//     return netDebt
-// }
-
-// const getEnterpriseValue = async (symbol: string) => {
-//     const marketCap = await getMarketcap(symbol)
-//     const netDebt = await getNetDebt(symbol)
-//     return marketCap + netDebt
-// }
-
-// const getEVEBITDA = async (symbol: string) => {
-//     const enterpriseValue = await getEnterpriseValue(symbol)
-//     const EBITDA = await getEBITDA(symbol)
-//     return enterpriseValue / EBITDA
-// }
