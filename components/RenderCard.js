@@ -37,66 +37,44 @@ export default function App(props) {
         const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=price,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
         const price = result.data.price
         const chartData = result.data.chart
-        var volatility
         var dates = new Set()
         var dataPoints = []
         for (var data of chartData) {
             dates.add(data.date.split('-')[1])
             dataPoints.push(data.close)
         }
-        const indicator = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/indicator/volatility?range=ytd&token=Tpk_d5ea729178384954bb5301abc99328fa')
-        volatility = indicator.data.indicator[0][indicator.data.indicator[0].length - 1]
         const cacheStats = await firebase.functions().httpsCallable("getCache")({symbol: props.symbol})
-        var EBITDA = cacheStats.data.EBITDA
-        var enterpriseValue = cacheStats.data.enterpriseValue
-        var PE = cacheStats.data.PE
-        var netDebt = cacheStats.data.netDebt
-        var sales = cacheStats.data.sales
-        var buys = cacheStats.data.buys
-        var holds = cacheStats.data.holds
-        var sells = cacheStats.data.sells
-        var eps = cacheStats.data.eps
-        if(EBITDA === null) {
-            EBITDA = "N/A"
-        }
-        if(enterpriseValue === null) {
-            enterpriseValue = "N/A"
-        }
-        if(PE === null) {
-            PE = "N/A"
-        }
-        if(netDebt === null) {
-            netDebt = "N/A"
-        }
-        if(sales === null) {
-            sales = "N/A"
-        }
-        if(buys === null) {
-            buys = "N/A"
-        }
-        if(holds === null) {
-            holds = "N/A"
-        }
-        if(sells === null) {
-            sells = "N/A"
-        }
-        if(eps === null) {
-            eps = "N/A"
-        }
+        console.log(cacheStats)
+        let EVEBITDA = cacheStats.data.EVEBITDA
+        let PE = cacheStats.data.PE
+        let salesGrowth = cacheStats.data.salesGrowth
+        let epsGrowth = cacheStats.data.epsGrowth
+        let netDebtEBITDA = cacheStats.data.netDebtEBITDA
+        let volatility = cacheStats.data.volatility
+        let ratingScore = cacheStats.data.ratingScore
+        let buys = cacheStats.data.buys
+        let holds = cacheStats.data.holds
+        let sells = cacheStats.data.sells
+        let consensusEPS1 = cacheStats.data.consensusEPS1
+        let consensusEPS2 = cacheStats.data.consensusEPS2
+        let priceTarget = cacheStats.data.priceTarget
         setData({
             price: price,
-            enterpriseValue: enterpriseValue,
-            netDebt: netDebt,
-            EBITDA: EBITDA,
+            EVEBITDA: EVEBITDA,
             PE: PE,
+            salesGrowth: salesGrowth,
+            epsGrowth: epsGrowth,
+            netDebtEBITDA: netDebtEBITDA,
+            volatility: volatility,
+            ratingScore: ratingScore,
             buys: buys,
-            sells: sells,
             holds: holds,
-            sales: sales,
-            eps: eps,
+            sells: sells,
+            consensusEPS1: consensusEPS1,
+            consensusEPS2: consensusEPS2,
+            priceTarget: priceTarget,
             dates: Array.from(dates).sort(),
             dataPoints: dataPoints,
-            volatility: volatility
         })
         return
         
@@ -114,25 +92,18 @@ export default function App(props) {
 
     const getHoldings = async () => {
         const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
+        
         return result.data
     }
     const [holdings, setHoldings] = useState(0)
     useEffect(() => {
-        batchRequest()
-        .then(() => {
-           getNews() 
-        })
-        .then(() => {
-            getHoldings()
-            .then(result => setHoldings(result)) 
-        })
-        .then(() => {
-            setTimeout(() => {
-                setLoading(false)
-            }, 2000)
+        const effectFunction = async () => {
+            await batchRequest()
+            await getNews() 
             
-        })
-        
+        }
+        effectFunction()
+        .then(() => setLoading(false))
     }, [props.symbol])
 
     return (
@@ -178,17 +149,26 @@ export default function App(props) {
                             borderRadius: 16
                             }}
                         />
-                        <Title>Core Stats</Title>
-                        <Text>Enterprise Value: { data.enterpriseValue }</Text>
-                        <Text>Net Debt: { data.netDebt }</Text>
-                        <Text>EBITDA: { data.EBITDA }</Text>
-                        <Text>PE: { data.PE }</Text>
-                        <Text>Volatility: { data.volatility }</Text>
+                        <Title>Valuation</Title>
+
+                        <Text>EV/EBITDA: { data.EVEBITDA }</Text>
+                        <Text>P/E: { data.PE }</Text>
+                        <Title>Growth</Title>
+                        <Text>Sales Growth: { data.salesGrowth }</Text>
+                        <Text>EPS Growth: { data.epsGrowth }</Text>
+                        <Title>Debt</Title>
+                        <Text>Net Debt/EBITDA: { data.netDebtEBITDA }</Text>
+                        <Title>Risk</Title>
+                        <Text>Volatility: { data.volatility * 100 } %</Text>
+                        <Title>Ratings</Title>
                         <Text>Buys: { data.buys }</Text>
                         <Text>Holds: { data.holds }</Text>
                         <Text>Sells: { data.sells }</Text>
-                        <Text>Sales: { data.sales }</Text>
-                        <Text>EPS: { data.eps }</Text>
+                        <Text>Rating Score: { data.ratingScore }</Text>
+                        <Title>Expectations</Title>
+                        <Text>Next Quarter EPS: { data.consensusEPS1 }</Text>
+                        <Text>Current Year Fiscal EPS: { data.consensusEPS2 }</Text>
+                        <Text>Price Target: ${ data.priceTarget }</Text>
                         <Title>News</Title>
                         <FlatList 
                         data = {news}

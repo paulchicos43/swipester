@@ -37,6 +37,7 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
     } else {
         action = 'sell'
     }
+    console.log(data.symbol + ' ' + data.shares)
     const postData = {
         symbol: data.symbol,
         qty: data.shares,
@@ -52,14 +53,20 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
         }
     }
     let url = ""
-    console.log(tradeType)
     if(tradeType === 'paper'){
         url = "https://paper-api.alpaca.markets/v2/orders"
     } else {
-        url = "api.alpaca.markets"
+        url = "https://api.alpaca.markets/v2/orders"
     }
-    
-    const result = await axios.post(url, postData, options).catch((error: any) => {return error})
+    var result = await axios.post(url, postData, options)
+    .catch(async (error: any) => {
+        await axios.delete('https://paper-api.alpaca.markets/v2/positions/' + data.symbol, options)
+        setTimeout(async () => {
+            result = await axios.post(url, postData, options)
+        }, 1000)
+        
+        return result.data
+    })
     return result.data
 })
 
@@ -88,43 +95,100 @@ exports.addSwipeItem = functions.https.onCall(async (data, context) => {
     admin.firestore().collection('swipes').add(data)
     return;
 })
-
+const sleep = (ms: number) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 exports.getCache = functions.https.onCall(async (data, context) => {
     const databaseResult = await admin.firestore().collection('cache').doc(data.symbol).get()
     if(databaseResult.exists) {
         return databaseResult.data()
     } else {
-        const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + data.symbol + '/batch?types=advanced-stats,financials,recommendation-trends,stats,income,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
-        const EBITDA = iexBatchResult.data['advanced-stats'].EBITDA
-        const enterpriseValue = iexBatchResult.data['advanced-stats'].enterpriseValue
-        const PE = iexBatchResult.data['advanced-stats'].forwardPERatio
-        const netDebt = iexBatchResult.data.financials.financials[0].shortTermDebt + iexBatchResult.data.financials.financials[0].longTermDebt + iexBatchResult.data.financials.financials[0].currentDebt - iexBatchResult.data.financials.financials[0].totalCash
-        const sales = iexBatchResult.data.financials.financials[0].totalRevenue;
-        const buys = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingBuy + iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingOverweight
-        const holds = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingHold
-        const sells = iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingSell + iexBatchResult.data['recommendation-trends'][iexBatchResult.data['recommendation-trends'].length - 1].ratingUnderweight
-        const eps = iexBatchResult.data.stats.ttmEPS
+        let EVEBITDA, PE, netDebtEBITDA, salesGrowth, ratingScore, epsGrowth, consensusEPS1, consensusEPS2, priceTarget, volatility, ratings: any
+        try{
+            EVEBITDA = await getEVEBITDA(data.symbol)
+        } catch(error) {
+            EVEBITDA = 'N/A'
+        }
+        try {
+            PE = await getTrailingPE(data.symbol)
+        } catch(error) {
+            PE = 'N/a'
+        }
+        try {
+            netDebtEBITDA = await getNetDebtEBITDA(data.symbol)
+        } catch(error) {
+            netDebtEBITDA = 'N/A'
+        }
+        try {
+            salesGrowth = await getSalesGrowth(data.symbol)
+        } catch(error) {
+            salesGrowth = 'N/A'
+        }
+        try {
+            ratingScore = await getRatingScore(data.symbol)
+        } catch(error) {
+            ratingScore = 'N/A'
+        }
+        try {
+            epsGrowth = await getEPSGrowth(data.symbol)
+        } catch(error) {
+            epsGrowth = 'N/A'
+        }
+        try {
+            consensusEPS1 = await getConsensusEPS1(data.symbol)
+        } catch(error) {
+            consensusEPS1 = 'N/A'
+        }
+        try {
+            consensusEPS2 = await getConsensusEPS2(data.symbol)
+        } catch(error) {
+            consensusEPS2 = 'N/A'
+        }
+        try {
+            priceTarget = await getPriceTarget(data.symbol)
+        } catch(error) {
+            priceTarget = 'N/A'
+        }
+        try {
+            volatility = await getVolatility(data.symbol)
+        } catch(error) {
+            volatility = 'N/A'
+        }
+        try {
+            ratings = await getRatings(data.symbol)
+        } catch(error) {
+            ratings = "N/A"
+        }
+
         admin.firestore().collection('cache').doc(data.symbol).set({
-            EBITDA: EBITDA,
-            enterpriseValue: enterpriseValue,
+            EVEBITDA: EVEBITDA,
             PE: PE,
-            netDebt: netDebt,
-            sales: sales,
-            buys: buys,
-            holds: holds,
-            sells: sells,
-            eps: eps,
+            salesGrowth: salesGrowth,
+            epsGrowth: epsGrowth,
+            netDebtEBITDA: netDebtEBITDA,
+            volatility: volatility,
+            ratingScore: ratingScore,
+            buys: ratings.ratingBuy,
+            holds: ratings.ratingHold,
+            sells: ratings.ratingSell,
+            consensusEPS1: consensusEPS1,
+            consensusEPS2: consensusEPS2,
+            priceTarget: priceTarget,
         })
         return {
-                EBITDA: EBITDA,
-                enterpriseValue: enterpriseValue,
-                PE: PE,
-                netDebt: netDebt,
-                sales: sales,
-                buys: buys,
-                holds: holds,
-                sells: sells,
-                eps: eps,
+            EVEBITDA: EVEBITDA,
+            PE: PE,
+            salesGrowth: salesGrowth,
+            epsGrowth: epsGrowth,
+            netDebtEBITDA: netDebtEBITDA,
+            volatility: volatility,
+            ratingScore: ratingScore,
+            buys: ratings.ratingBuy,
+            holds: ratings.ratingHold,
+            sells: ratings.ratingSell,
+            consensusEPS1: consensusEPS1,
+            consensusEPS2: consensusEPS2,
+            priceTarget: priceTarget,
             }
     }
 })
@@ -155,9 +219,146 @@ exports.getHoldingNumber = functions.https.onCall(async (data, context) => {
     return 0
 })
 
+exports.handleRule = functions.https.onRequest((req, res) => {
+    console.log(req)
+    res.send(400)
+})
+
+const getMarketcap = async (symbol: string) => {
+    await sleep(100)
+    const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/batch?types=advanced-stats,price&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    const price = iexBatchResult.data.price
+    const sharesOutstanding = iexBatchResult.data['advanced-stats'].sharesOutstanding
+    return price * sharesOutstanding
+}
 
 
+const getEBITDA = async (symbol: string) => {
+    await sleep(100)
+    const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/batch?types=advanced-stats&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    return iexBatchResult.data['advanced-stats'].EBITDA
+}
 
+const getNetDebt = async (symbol: string) => {
+    await sleep(100)
+    const iexBatchResult = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/batch?types=balance-sheet,financials&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    const currentCash = iexBatchResult.data['balance-sheet']['balancesheet'][0].currentCash
+    const shortTermInvestments = iexBatchResult.data['balance-sheet']['balancesheet'][0].shortTermInvestments
+    const totalCash = currentCash + shortTermInvestments
+    const totalDebt = iexBatchResult.data.financials.financials[0].totalDebt
+    const netDebt = totalCash + totalDebt
+    return netDebt
+}
+
+const getEnterpriseValue = async (symbol: string) => {
+   await sleep(100)
+    const marketCap = await getMarketcap(symbol)
+    await sleep(100)
+    const netDebt = await getNetDebt(symbol)
+    return marketCap + netDebt
+}
+
+const getEVEBITDA = async (symbol: string) => {
+    await sleep(100)
+    const enterpriseValue = await getEnterpriseValue(symbol)
+    await sleep(100)
+    const EBITDA = await getEBITDA(symbol)
+    return enterpriseValue / EBITDA
+}
+const getNetDebtEBITDA = async (symbol: string) => {
+    await sleep(100)
+    const netDebt = await getNetDebt(symbol)
+    await sleep(100)
+    const EBITDA = await getEBITDA(symbol)
+    return netDebt / EBITDA
+}
+
+const getTotalEPS = async (symbol: string) => {
+    await sleep(100)
+    const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/earnings/?last=4&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    let sum = 0
+    for (let item of result.data.earnings) {
+        sum += item.actualEPS
+    }
+    return sum
+}
+const getTrailingPE = async (symbol: string) => {
+    await sleep(100)
+    const price = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/price?token=Tsk_47aba52e64214057b138bb7b57e751f7')
+    await sleep(100)
+    const totalEPS = await getTotalEPS(symbol)
+    return price.data / totalEPS
+}
+
+const getSalesGrowth = async (symbol: string) => {
+    await sleep(100)
+    const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/income?period=quarter&last=8&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    let firstFour = 0
+    let secondFour = 0
+    for(let i = 0; i < 4; i++) {
+        firstFour += result.data.income[i].totalRevenue
+    }
+    for(let i = 4; i < 8; i++) {
+        secondFour += result.data.income[i].totalRevenue
+    }
+    return firstFour/(secondFour) - 1
+}
+
+const getEPSGrowth = async (symbol: string) => {
+    await sleep(100)
+    const consensusData = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/estimates?period=annual&last=1&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+    await sleep(100)
+    const consensusEPS = consensusData.data.estimates[0].consensusEPS
+    const annualData = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/earnings/1?period=annual&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+    const actualEPS = annualData.data.earnings[0].actualEPS
+    return consensusEPS / actualEPS - 1
+
+}
+
+const getVolatility = async (symbol: string) => {
+    await sleep(100)
+    const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/indicator/volatility?range=6m&input1=66&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    return result.data.indicator[0][result.data.indicator[0].length - 1]
+}
+
+const getRatingScore = async (symbol: string) => {
+    await sleep(100)
+    const ratingResults = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/recommendation-trends?period=quarter&last=8&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    const ratingBuy = ratingResults.data[0].ratingBuy + ratingResults.data[0].ratingOverweight
+    const ratingHold = ratingResults.data[0].ratingHold
+    const ratingSell = ratingResults.data[0].ratingSell + ratingResults.data[0].ratingUnderweight
+    return (ratingBuy * 3 + ratingSell * 2 + ratingHold * 1) / (ratingBuy + ratingHold + ratingSell)
+}
+const getRatings = async (symbol: string) => {
+    await sleep(100)
+    const ratingResults = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/recommendation-trends?period=quarter&last=8&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    const ratingBuy = ratingResults.data[0].ratingBuy + ratingResults.data[0].ratingOverweight
+    const ratingHold = ratingResults.data[0].ratingHold
+    const ratingSell = ratingResults.data[0].ratingSell + ratingResults.data[0].ratingUnderweight
+    return {
+        ratingBuy: ratingBuy,
+        ratingHold: ratingHold,
+        ratingSell: ratingSell,
+    }
+}
+
+const getConsensusEPS1 = async (symbol: string) => {
+    await sleep(100)
+    const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/estimates?period=quarter&last=1&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    return result.data.estimates[0].consensusEPS
+}
+
+const getConsensusEPS2 = async (symbol: string) => {
+    await sleep(100)
+    const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/estimates?period=annual&last=1&token=Tpk_d5ea729178384954bb5301abc99328fa')
+    return result.data.estimates[0].consensusEPS
+}
+
+const getPriceTarget = async (symbol: string) => {
+    await sleep(100)
+    const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/price-target?token=Tpk_d5ea729178384954bb5301abc99328fa')
+    return result.data.priceTargetAverage 
+}
 
 
 
