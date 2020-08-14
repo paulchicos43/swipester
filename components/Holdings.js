@@ -25,7 +25,9 @@ export default function App({ navigation, route }) {
 
 
     return (
-        !loading ? <Container>
+        !loading ? 
+        <Container>
+            <Title>Diversification Score: { Math.min(holdings.length/20 * 100, 100) }</Title>
             <FlatList 
                 data = { holdings }
                 renderItem = {({item}) => (
