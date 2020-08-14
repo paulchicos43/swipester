@@ -73,6 +73,43 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
     }
     
     const AnimatedTouchable = Animated.createAnimatedComponent(TouchableWithoutFeedback)
+    const [tickerData, setTickerData] = useState({})
+    useEffect(() => {
+        const getTickerData = async () => {
+            const cacheStats = await firebase.functions().httpsCallable("getCache")({symbol: item.swipedOn})
+            let EVEBITDA = cacheStats.data.EVEBITDA
+            let PE = cacheStats.data.PE
+            let salesGrowth = cacheStats.data.salesGrowth
+            let epsGrowth = cacheStats.data.epsGrowth
+            let netDebtEBITDA = cacheStats.data.netDebtEBITDA
+            let volatility = cacheStats.data.volatility
+            let ratingScore = cacheStats.data.ratingScore
+            let buys = cacheStats.data.buys
+            let holds = cacheStats.data.holds
+            let sells = cacheStats.data.sells
+            let consensusEPS1 = cacheStats.data.consensusEPS1
+            let consensusEPS2 = cacheStats.data.consensusEPS2
+            let priceTarget = cacheStats.data.priceTarget
+            setTickerData({
+                price: price,
+                EVEBITDA: EVEBITDA,
+                PE: PE,
+                salesGrowth: salesGrowth,
+                epsGrowth: epsGrowth,
+                netDebtEBITDA: netDebtEBITDA,
+                volatility: volatility,
+                ratingScore: ratingScore,
+                buys: buys,
+                holds: holds,
+                sells: sells,
+                consensusEPS1: consensusEPS1,
+                consensusEPS2: consensusEPS2,
+                priceTarget: priceTarget,
+
+            })
+        }
+        getTickerData()
+    }, [])
     return (
         !data.selected ? <Animated.View style = {{useNativeDriver: true, transform: position.getTranslateTransform()}}>
             <Card>
@@ -86,6 +123,7 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                                         <Text style = {{color: data.textColor}}>{ item.swipedOnName } ({ item.swipedOn })</Text>
                                         <Text>$ { price }</Text>
                                     </View>
+
                                 </View>
                             </AnimatedTouchable>
                         </Body>
@@ -126,6 +164,27 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                 <CardItem>
                     
                     <CartItem price = { price } propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
+                </CardItem>
+                <CardItem style = {{ flexDirection: 'column' }}>
+                    <Title>Valuation</Title>
+                    <Text>EV/EBITDA: { tickerData.EVEBITDA }</Text>
+                    <Text>P/E: { tickerData.PE }</Text>
+                    <Title>Growth</Title>
+                    <Text>Sales Growth: { tickerData.salesGrowth }</Text>
+                    <Text>EPS Growth: { tickerData.epsGrowth }</Text>
+                    <Title>Debt</Title>
+                    <Text>Net Debt/EBITDA: { tickerData.netDebtEBITDA }</Text>
+                    <Title>Risk</Title>
+                    <Text>Volatility: { tickerData.volatility * 100 } %</Text>
+                    <Title>Ratings</Title>
+                    <Text>Buys: { tickerData.buys }</Text>
+                    <Text>Holds: { tickerData.holds }</Text>
+                    <Text>Sells: { tickerData.sells }</Text>
+                    <Text>Rating Score: { tickerData.ratingScore }</Text>
+                    <Title>Expectations</Title>
+                    <Text>Next Quarter EPS: { tickerData.consensusEPS1 }</Text>
+                    <Text>Current Year Fiscal EPS: { tickerData.consensusEPS2 }</Text>
+                    <Text>Price Target: ${ tickerData.priceTarget }</Text>
                 </CardItem>
             </Card>
         </Animated.View>

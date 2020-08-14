@@ -37,7 +37,6 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
     } else {
         action = 'sell'
     }
-    console.log(data.symbol + ' ' + data.shares)
     const postData = {
         symbol: data.symbol,
         qty: data.shares,
@@ -63,9 +62,10 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
         await axios.delete('https://paper-api.alpaca.markets/v2/positions/' + data.symbol, options)
         setTimeout(async () => {
             result = await axios.post(url, postData, options)
+            return result.data
         }, 1000)
         
-        return result.data
+        
     })
     return result.data
 })

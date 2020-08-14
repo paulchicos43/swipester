@@ -44,7 +44,6 @@ export default function App(props) {
             dataPoints.push(data.close)
         }
         const cacheStats = await firebase.functions().httpsCallable("getCache")({symbol: props.symbol})
-        console.log(cacheStats)
         let EVEBITDA = cacheStats.data.EVEBITDA
         let PE = cacheStats.data.PE
         let salesGrowth = cacheStats.data.salesGrowth

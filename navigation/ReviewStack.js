@@ -14,12 +14,10 @@ export default function App() {
                 <Stack.Screen 
                     name = "Review"
                     component = { Review }
-                    initialParams = {{ selected: [], }}
+                    initialParams = {{ selected: [], tradeType: 'paper'}}
+
                     options = {
                         ({route, navigation}) => ({
-                            initialParams: {
-                                tradeType: 'paper'
-                            },
                             headerRight: () => 
                             <Button onPress = { async () => {
                                 if(route.params.selected.length != 0){
