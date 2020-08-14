@@ -96,6 +96,7 @@ export default function App(props) {
     }
     const [holdings, setHoldings] = useState(0)
     useEffect(() => {
+        setLoading(true)
         const effectFunction = async () => {
             await batchRequest()
             await getNews() 

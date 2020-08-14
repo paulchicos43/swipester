@@ -263,14 +263,22 @@ const getEVEBITDA = async (symbol: string) => {
     const enterpriseValue = await getEnterpriseValue(symbol)
     await sleep(100)
     const EBITDA = await getEBITDA(symbol)
-    return enterpriseValue / EBITDA
+    if(EBITDA !== 0){
+        return enterpriseValue / EBITDA
+    } else {
+        return "N/A"
+    }
 }
 const getNetDebtEBITDA = async (symbol: string) => {
     await sleep(100)
     const netDebt = await getNetDebt(symbol)
     await sleep(100)
     const EBITDA = await getEBITDA(symbol)
-    return netDebt / EBITDA
+    if(EBITDA !== 0){
+        return netDebt / EBITDA
+    } else  {
+        return "N/A"
+    }
 }
 
 const getTotalEPS = async (symbol: string) => {
@@ -287,7 +295,11 @@ const getTrailingPE = async (symbol: string) => {
     const price = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/price?token=Tsk_47aba52e64214057b138bb7b57e751f7')
     await sleep(100)
     const totalEPS = await getTotalEPS(symbol)
-    return price.data / totalEPS
+    if(totalEPS !== 0){
+        return price.data / totalEPS
+    } else {
+        return "N/A"
+    }
 }
 
 const getSalesGrowth = async (symbol: string) => {
@@ -301,7 +313,11 @@ const getSalesGrowth = async (symbol: string) => {
     for(let i = 4; i < 8; i++) {
         secondFour += result.data.income[i].totalRevenue
     }
-    return firstFour/(secondFour) - 1
+    if(secondFour !== 0){
+        return firstFour/(secondFour) - 1
+    } else {
+        return "N/A"
+    }
 }
 
 const getEPSGrowth = async (symbol: string) => {
@@ -311,7 +327,11 @@ const getEPSGrowth = async (symbol: string) => {
     const consensusEPS = consensusData.data.estimates[0].consensusEPS
     const annualData = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/earnings/1?period=annual&token=Tsk_47aba52e64214057b138bb7b57e751f7')
     const actualEPS = annualData.data.earnings[0].actualEPS
-    return consensusEPS / actualEPS - 1
+    if(actualEPS !== 0) {
+        return consensusEPS / (actualEPS) - 1
+    } else {
+        return "N/A"
+    }
 
 }
 
