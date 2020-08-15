@@ -159,15 +159,6 @@ exports.getCache = functions.https.onCall(async (data, context) => {
         } catch(error) {
             ratings = "N/A"
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
         admin.firestore().collection('cache').doc(data.symbol).set({
             EVEBITDA: EVEBITDA,
             PE: PE,
