@@ -104,62 +104,70 @@ exports.getCache = functions.https.onCall(async (data, context) => {
         return databaseResult.data()
     } else {
         let EVEBITDA, PE, netDebtEBITDA, salesGrowth, ratingScore, epsGrowth, consensusEPS1, consensusEPS2, priceTarget, volatility, ratings: any
-        try{
+        try {
             EVEBITDA = await getEVEBITDA(data.symbol)
         } catch(error) {
-            EVEBITDA = 'N/A'
+            EVEBITDA = "N/A"
         }
         try {
             PE = await getTrailingPE(data.symbol)
         } catch(error) {
-            PE = 'N/a'
+            PE = "N/A"
         }
         try {
             netDebtEBITDA = await getNetDebtEBITDA(data.symbol)
         } catch(error) {
-            netDebtEBITDA = 'N/A'
+            netDebtEBITDA = "N/A"
         }
         try {
             salesGrowth = await getSalesGrowth(data.symbol)
         } catch(error) {
-            salesGrowth = 'N/A'
+            salesGrowth = "N/A"
         }
         try {
             ratingScore = await getRatingScore(data.symbol)
         } catch(error) {
-            ratingScore = 'N/A'
+            ratingScore = "N/A"
         }
         try {
             epsGrowth = await getEPSGrowth(data.symbol)
         } catch(error) {
-            epsGrowth = 'N/A'
+            epsGrowth = "N/A"
         }
         try {
             consensusEPS1 = await getConsensusEPS1(data.symbol)
         } catch(error) {
-            consensusEPS1 = 'N/A'
+            consensusEPS1 = "N/A"
         }
         try {
             consensusEPS2 = await getConsensusEPS2(data.symbol)
         } catch(error) {
-            consensusEPS2 = 'N/A'
+            consensusEPS2 = "N/A"
         }
         try {
             priceTarget = await getPriceTarget(data.symbol)
         } catch(error) {
-            priceTarget = 'N/A'
+            priceTarget = "N/A"
         }
         try {
             volatility = await getVolatility(data.symbol)
         } catch(error) {
-            volatility = 'N/A'
+            volatility = "N/A"
         }
         try {
             ratings = await getRatings(data.symbol)
         } catch(error) {
             ratings = "N/A"
         }
-
+        
+        
+        
+        
+        
+        
+        
+        
+        
         admin.firestore().collection('cache').doc(data.symbol).set({
             EVEBITDA: EVEBITDA,
             PE: PE,
@@ -263,7 +271,7 @@ const getEVEBITDA = async (symbol: string) => {
     const enterpriseValue = await getEnterpriseValue(symbol)
     await sleep(100)
     const EBITDA = await getEBITDA(symbol)
-    if(EBITDA !== 0){
+    if(EBITDA !== 0 && EBITDA !== null){
         return enterpriseValue / EBITDA
     } else {
         return "N/A"
@@ -274,7 +282,7 @@ const getNetDebtEBITDA = async (symbol: string) => {
     const netDebt = await getNetDebt(symbol)
     await sleep(100)
     const EBITDA = await getEBITDA(symbol)
-    if(EBITDA !== 0){
+    if(EBITDA !== 0 && EBITDA !== null){
         return netDebt / EBITDA
     } else  {
         return "N/A"

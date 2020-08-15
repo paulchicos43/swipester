@@ -34,8 +34,9 @@ export default function App(props) {
     })
     const batchRequest = async () => {
 
-        const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=price,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
-        const price = result.data.price
+        const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=quote,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+        const price = result.data.quote.latestPrice
+        const changePercent = result.data.quote.changePercent
         const chartData = result.data.chart
         var dates = new Set()
         var dataPoints = []
@@ -57,8 +58,10 @@ export default function App(props) {
         let consensusEPS1 = cacheStats.data.consensusEPS1
         let consensusEPS2 = cacheStats.data.consensusEPS2
         let priceTarget = cacheStats.data.priceTarget
+        console.log(dataPoints)
         setData({
             price: price,
+            changePercent: changePercent,
             EVEBITDA: EVEBITDA,
             PE: PE,
             salesGrowth: salesGrowth,
@@ -91,15 +94,16 @@ export default function App(props) {
 
     const getHoldings = async () => {
         const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
-        
-        return result.data
+        setHoldings(result.data)
+        return
     }
     const [holdings, setHoldings] = useState(0)
     useEffect(() => {
         setLoading(true)
         const effectFunction = async () => {
             await batchRequest()
-            await getNews() 
+            await getNews()
+            await getHoldings()
             
         }
         effectFunction()
@@ -117,7 +121,7 @@ export default function App(props) {
                     <Title>Current Holdings: { holdings }</Title>
                     <Body>
                         
-                        <Text style = { styles.subtitle } >$ { data.price }</Text>
+                        <Text style = { styles.subtitle } >$ { data.price } ({ (data.changePercent * 100).toFixed(2) } %)</Text>
                         <LineChart
                             withDots = {false}
                             withInnerLines = { false }
