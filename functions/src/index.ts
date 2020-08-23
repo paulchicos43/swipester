@@ -37,7 +37,7 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
     } else {
         action = 'sell'
     }
-    const postData = {
+    let postData = {
         symbol: data.symbol,
         qty: data.shares,
         side: action,
@@ -61,6 +61,14 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
     .catch(async (error: any) => {
         await axios.delete('https://paper-api.alpaca.markets/v2/positions/' + data.symbol, options)
         setTimeout(async () => {
+            const holdingNumber = await getHoldingNumber(data.symbol, context.auth?.uid)
+            postData = {
+                symbol: data.symbol,
+                qty: data.shares + holdingNumber,
+                side: action,
+                type: 'market',
+                time_in_force: 'day',
+            };
             result = await axios.post(url, postData, options)
             return result.data
         }, 1000)
@@ -203,21 +211,22 @@ exports.getPositions = functions.https.onCall(async (data, context) => {
 })
 
 exports.getHoldingNumber = functions.https.onCall(async (data, context) => {
-    const doc = await admin.firestore().collection('response').doc(context.auth?.uid).get()
+    return await getHoldingNumber(data.searchStock, context.auth?.uid)
+})
+const getHoldingNumber = async (searchStock: any, uid: any) => {
+    const doc = await admin.firestore().collection('response').doc(uid).get()
     const result = await axios.get("https://paper-api.alpaca.markets/v2/positions", {
         headers: {
             'Authorization': doc.data().token_type + ' ' + doc.data().access_token,
         }
     })
-    const searchStock = data.searchStock
     for(let item of result.data) {
         if(item.symbol === searchStock) {
             return item.qty
         }
     }
     return 0
-})
-
+}
 exports.handleRule = functions.https.onRequest((req, res) => {
     console.log(req)
     res.send(400)
