@@ -39,8 +39,16 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
             }
     }
     const getHoldings = async () => {
-        const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: item.swipedOn })
-        return result.data
+        firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
+        .then(result => {
+            setHoldings(result.data)
+            return
+        })
+        .catch(() => {
+            setHoldings(0)
+            return
+        })
+
     }
     const [holdings, setHoldings] = useState(0)
     useEffect(() => {
@@ -52,9 +60,6 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
             setIconName("long-arrow-down")
         }
         getHoldings()
-        .then(result => {
-            setHoldings(result)
-        })
      }, [])
     useEffect(() => {
         
