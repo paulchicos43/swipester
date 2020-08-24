@@ -137,7 +137,7 @@ export default function App({ navigation }) {
             <Input autoCorrect = { false } secureTextEntry = { true } onChangeText = { value => setPassword(value) } placeholder = 'password' />
           </Item>
           <Button onPress = { handlePress } primary block><Text>Sign In/Register</Text></Button>
-          <Button onPress = { () => firebase.auth().sendPasswordResetEmail(email) } style = { styles.button } primary block><Text>Reset Password</Text></Button>
+          <Button onPress = { () => {firebase.auth().sendPasswordResetEmail(email); alert("Email Sent")} } style = { styles.button } primary block><Text>Reset Password</Text></Button>
           <Button onPress = { () => signInWithGoogleAsync() } style = { styles.button } primary block><Text>Google Sign In</Text></Button>
           <Button onPress = { () => Facebooklogin() } style = { styles.button } primary block><Text>Facebook Sign In</Text></Button>
         </Form>
