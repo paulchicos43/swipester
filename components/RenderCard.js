@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Content, Title, Spinner, Body, Card, CardItem, Text, ListItem } from 'native-base';
+import { Container, Content, Title, Spinner, Body, Card, CardItem, Text, ListItem, Segment, Button } from 'native-base';
 import { StyleSheet, Dimensions, FlatList } from 'react-native';
 import { LineChart } from 'react-native-chart-kit'
 import firebase from 'firebase'
@@ -18,6 +18,9 @@ export default function App(props) {
     // const [sales, setSales] = useState(0);
     // const [eps, setEps] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [oneDayData, setOneDayData] = useState(null)
+    const [fiveDayData, setFiveDayData] = useState(null)
+    const [sixMonthData, setSixMonthData] = useState(null)
     const [data, setData] = useState({
         price: 0,
         enterpriseValue: 0,
@@ -32,18 +35,29 @@ export default function App(props) {
         eps: 0,
         chart: {},
     })
+    const [chartData, setChartData] = useState([])
     const batchRequest = async () => {
-
-        const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=quote,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+        setActive(0)
+        const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=quote&token=Tsk_47aba52e64214057b138bb7b57e751f7')
         const price = result.data.quote.latestPrice
         const changePercent = result.data.quote.changePercent
-        const chartData = result.data.chart
-        var dates = new Set()
-        var dataPoints = []
-        for (var data of chartData) {
-            dates.add(data.date.split('-')[1])
-            dataPoints.push(data.close)
+        const chartData = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=intraday-prices,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
+        const fiveDay = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/chart/5d?token=Tsk_47aba52e64214057b138bb7b57e751f7')
+        let sixMonthPrices = []
+        let fiveDayPrices = []
+        let oneDayPrices = []
+        for(let thing of chartData.data.chart) {
+            sixMonthPrices.push(thing.close)
         }
+        for(let thing of fiveDay.data) {
+            fiveDayPrices.push(thing.close)
+        }
+        for(let thing of chartData.data['intraday-prices']) {
+            oneDayPrices.push(thing.close)
+        }
+        setOneDayData(oneDayPrices)
+        setFiveDayData(fiveDayPrices)
+        setSixMonthData(sixMonthPrices)
         const cacheStats = await firebase.functions().httpsCallable("getCache")({symbol: props.symbol})
         let EVEBITDA = cacheStats.data.EVEBITDA
         let PE = cacheStats.data.PE
@@ -58,7 +72,7 @@ export default function App(props) {
         let consensusEPS1 = cacheStats.data.consensusEPS1
         let consensusEPS2 = cacheStats.data.consensusEPS2
         let priceTarget = cacheStats.data.priceTarget
-        console.log(dataPoints)
+        setChartData(oneDayPrices)
         setData({
             price: price,
             changePercent: changePercent,
@@ -75,8 +89,6 @@ export default function App(props) {
             consensusEPS1: consensusEPS1,
             consensusEPS2: consensusEPS2,
             priceTarget: priceTarget,
-            dates: Array.from(dates).sort(),
-            dataPoints: dataPoints,
         })
         return
         
@@ -93,8 +105,8 @@ export default function App(props) {
     }
 
     const getHoldings = async () => {
-        const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
-        setHoldings(result.data)
+        // const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
+        // setHoldings(result.data)
         return
     }
     const [holdings, setHoldings] = useState(0)
@@ -109,7 +121,17 @@ export default function App(props) {
         effectFunction()
         .then(() => setLoading(false))
     }, [props.symbol])
-
+    const [active, setActive] = useState(0)
+    const handleSegmentPress = (active) => {
+        setActive(active)
+        if(active === 0) {
+            setChartData(oneDayData)
+        } else if (active === 1) {
+            setChartData(fiveDayData)
+        } else if (active === 2) {
+            setChartData(sixMonthData)
+        }
+    }
     return (
         !loading ?
         <Card style={{ elevation: 3 }}>
@@ -126,10 +148,9 @@ export default function App(props) {
                             withDots = {false}
                             withInnerLines = { false }
                             data={{
-                            labels: data.dates,
                             datasets: [
                                 {
-                                data: data.dataPoints
+                                data: chartData
                                 }
                             ]
                             }}
@@ -153,8 +174,18 @@ export default function App(props) {
                             borderRadius: 16
                             }}
                         />
+                        <Segment>
+                            <Button first active = { active === 0 } onPress = { () => handleSegmentPress(0) }>
+                                <Text>1 Day</Text>
+                            </Button>
+                            <Button active = { active === 1 } onPress = { () => handleSegmentPress(1) }>
+                                <Text>5 Day</Text>
+                            </Button>
+                            <Button last active = { active === 2 } onPress = { () => handleSegmentPress(2) }>
+                                <Text>6 Month</Text>
+                            </Button>
+                        </Segment>
                         <Title>Valuation</Title>
-
                         <Text>EV/EBITDA: { data.EVEBITDA }</Text>
                         <Text>P/E: { data.PE }</Text>
                         <Title>Growth</Title>
