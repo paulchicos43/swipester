@@ -105,9 +105,16 @@ export default function App(props) {
     }
 
     const getHoldings = async () => {
-        // const result = await firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
-        // setHoldings(result.data)
-        return
+        firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
+        .then(result => {
+            setHoldings(result.data)
+            return
+        })
+        .catch(() => {
+            setHoldings(0)
+            return
+        })
+
     }
     const [holdings, setHoldings] = useState(0)
     useEffect(() => {
