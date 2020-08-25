@@ -13,16 +13,27 @@ export default function App({ route,navigation }) {
     const sectorData = require('../sectors.json');
     const [loading, setLoading] = useState(true);
     const [progress, setProgress] = useState(0);
+    const [stocks, setStocks] = useState([])
     var currentStock = ""
-    var stocks = [];
-    for(let object in sectorData){
-        if(sectorData[object]['Sector'] === route.params.title){
-                stocks[stocks.length] = {
-                    symbol: sectorData[object]['Symbol'],
-                    title: sectorData[object]['Name'],
-                };
-        } 
-    }
+    useEffect(() => {
+        var sto = [];
+        for(let object in sectorData){
+            if(sectorData[object]['Sector'] === route.params.title){
+                    sto[sto.length] = {
+                        symbol: sectorData[object]['Symbol'],
+                        title: sectorData[object]['Name'],
+                    };
+            } 
+        }
+        setStocks(sto)
+        if(loading){
+            getSectorProgress(route.params.title)
+            .then(result => {
+                setProgress(parseInt(result));
+                setLoading(false);
+            })
+        }
+    }, [])
     const getSectorProgress = async (sector) => {
         return await AsyncStorage.getItem(sector)
     }
@@ -33,13 +44,7 @@ export default function App({ route,navigation }) {
     const resetDeck = async (sector) => {
         await AsyncStorage.setItem(sector, "0")
     }
-    if(loading){
-        getSectorProgress(route.params.title)
-        .then(result => {
-            setProgress(parseInt(result));
-            setLoading(false);
-        })
-    }
+
     useEffect(() => {
         YellowBox.ignoreWarnings(["Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`"]);
         YellowBox.ignoreWarnings(["Unhandled promise rejection: Error: Response is not valid JSON object."]);

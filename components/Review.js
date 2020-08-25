@@ -14,6 +14,7 @@ export default function App({ route, navigation }) {
     const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).where("active","==",true).orderBy("time", "desc").limit(20);
     const isFocused = useIsFocused()
     const [prices, setPrices] = useState({})
+    const [loggedIn, setLoggedIn] = useState(false)
     useEffect(() => {
             setSelected([])
             navigation.setParams({
@@ -63,7 +64,12 @@ export default function App({ route, navigation }) {
     }
     const [activeView, setActiveView] = useState(true)
     const [activeTradeType, setActiveTradeType] = useState(true)
+    firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: 'aapl' })
+    .catch(() => {
+        navigation.navigate('Alpaca')
+    })
     return (
+        
         !loading ?
         <Container>
             <Segment>
