@@ -147,7 +147,7 @@ export default function App(props) {
                 <Body>
                     <Content>
                     <Title style = { styles.title } >{ props.title }</Title>
-                    <Title>Current Holdings: { holdings }</Title>
+                    <Title>Current Holdings: { holdings } ($ { holdings * data.price })</Title>
                     <Body>
                         
                         <Text style = { styles.subtitle } >$ { data.price } ({ (data.changePercent * 100).toFixed(2) } %)</Text>

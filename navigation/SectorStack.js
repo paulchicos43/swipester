@@ -18,7 +18,7 @@ const resetStorage = async () => {
     await AsyncStorage.setItem('Communication Services', '0');
     await AsyncStorage.setItem('Utilities', '0');
     await AsyncStorage.setItem('Real Estate', '0');
-    alert('Reset Storage!')
+    alert('Ok, let\'s get started again!')
 }
 
 export default function App() {

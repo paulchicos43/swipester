@@ -24,7 +24,7 @@ exports.redirectURI = functions.https.onRequest((req, res) => {
         } else {
             const object = JSON.parse(body);
             await admin.firestore().collection('response').doc(uid).set(object)
-            res.send(200)
+            res.send("Success! You're all good!")
         }
     });
 });
@@ -59,12 +59,18 @@ exports.makeOrder = functions.https.onCall(async (data, context) => {
     }
     var result = await axios.post(url, postData, options)
     .catch(async (error: any) => {
-        await axios.delete('https://paper-api.alpaca.markets/v2/positions/' + data.symbol, options)
+        await axios.post('url', options)
         setTimeout(async () => {
             const holdingNumber = await getHoldingNumber(data.symbol, context.auth?.uid)
+            let tradeNum
+            if(holdingNumber > 0) {
+                tradeNum = data.shares - holdingNumber
+            } else {
+                tradeNum = data.shares - (-1 * holdingNumber)
+            }
             postData = {
                 symbol: data.symbol,
-                qty: data.shares + holdingNumber,
+                qty: tradeNum,
                 side: action,
                 type: 'market',
                 time_in_force: 'day',

@@ -39,7 +39,7 @@ export default function App() {
                                 } else {
                                     alert("You must select a stock.")
                                 }
-                            } } title = "Buy" />,
+                            } } title = "Trade" />,
                             headerLeft: () => null,
                             gestureEnabled: false,
                         })

@@ -48,9 +48,11 @@ export default function App({ route, navigation }) {
     }
 
     const addToSelectedList = (item) => {
+        console.log(firebase.auth().currentUser.uid)
         var newArray = selected
         newArray.push(item)
         setSelected(newArray)
+        console.log(selected)
         navigation.setParams({
             selected: selected
         })

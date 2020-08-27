@@ -165,7 +165,7 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                         </AnimatedTouchable>
                     </Right>
                 </CardItem>
-                <Title>Holdings: { holdings }</Title>
+                <Title>Holdings: { holdings } ($ { holdings * price })</Title>
                 <CardItem>
                     
                     <CartItem price = { price } propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
