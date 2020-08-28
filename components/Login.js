@@ -119,6 +119,7 @@ export default function App({ navigation }) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(() => {
         firebase.auth().currentUser.sendEmailVerification()
+        alert("Confirmation email sent.")
       })
       .catch(error => {
         firebase.auth().signInWithEmailAndPassword(email, password)
