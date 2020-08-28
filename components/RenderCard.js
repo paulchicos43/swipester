@@ -37,12 +37,12 @@ export default function App(props) {
     })
     const [chartData, setChartData] = useState([])
     const batchRequest = async () => {
-        setActive(0)
+        setActive(2)
         const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=quote&token=Tsk_47aba52e64214057b138bb7b57e751f7')
         const price = result.data.quote.latestPrice
         const changePercent = result.data.quote.changePercent
         const chartData = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=intraday-prices,chart&range=6m&token=Tsk_47aba52e64214057b138bb7b57e751f7')
-        const fiveDay = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/chart/5d?token=Tsk_47aba52e64214057b138bb7b57e751f7')
+        const fiveDay = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/chart/1m?token=Tsk_47aba52e64214057b138bb7b57e751f7')
         let sixMonthPrices = []
         let fiveDayPrices = []
         let oneDayPrices = []
@@ -72,7 +72,7 @@ export default function App(props) {
         let consensusEPS1 = cacheStats.data.consensusEPS1
         let consensusEPS2 = cacheStats.data.consensusEPS2
         let priceTarget = cacheStats.data.priceTarget
-        setChartData(oneDayPrices)
+        setChartData(sixMonthPrices)
         setData({
             price: price,
             changePercent: changePercent,
@@ -128,7 +128,7 @@ export default function App(props) {
         effectFunction()
         .then(() => setLoading(false))
     }, [props.symbol])
-    const [active, setActive] = useState(0)
+    const [active, setActive] = useState(2)
     const handleSegmentPress = (active) => {
         setActive(active)
         if(active === 0) {
@@ -182,14 +182,14 @@ export default function App(props) {
                             }}
                         />
                         <Segment>
-                            <Button first active = { active === 0 } onPress = { () => handleSegmentPress(0) }>
-                                <Text>1 Day</Text>
+                            <Button first active = { active === 2 } onPress = { () => handleSegmentPress(2) }>
+                                <Text>6 Month</Text>
                             </Button>
                             <Button active = { active === 1 } onPress = { () => handleSegmentPress(1) }>
-                                <Text>5 Day</Text>
+                                <Text>1 Month</Text>
                             </Button>
-                            <Button last active = { active === 2 } onPress = { () => handleSegmentPress(2) }>
-                                <Text>6 Month</Text>
+                            <Button last active = { active === 0 } onPress = { () => handleSegmentPress(0) }>
+                                <Text>1 Day</Text>
                             </Button>
                         </Segment>
                         <Title>Valuation</Title>
