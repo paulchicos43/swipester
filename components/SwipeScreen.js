@@ -113,6 +113,11 @@ export default function App({ route,navigation }) {
         return parseInt(final);
     }
     const handleDislike = async () => {
+        const shortable = await isShortable(currentStock)
+        if(!shortable) {
+            alert("This stock is not shortable. It will not be included in the review page.")
+            return
+        }
         const dislikeObject = {
             swipeAction: 'left',
             swipedBy: firebase.auth().currentUser.uid,
@@ -136,6 +141,18 @@ export default function App({ route,navigation }) {
     }
     var currentName = ""
     const [_deckSwiper, set_DeckSwiper] = useState()
+    const isShortable = async (symbol) => {
+        let url = 'https://api.alpaca.markets/v2/assets/'
+        const doc = await firebase.firestore().collection('response').doc(firebase.auth().currentUser.uid).get()
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': doc.data().token_type + " " + doc.data().access_token,
+            }
+        }
+        const result = await axios.get(url + symbol, options)
+        return result.data.shortable
+    }
     return (
         !loading ?
         <Container>

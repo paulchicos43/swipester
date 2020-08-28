@@ -316,6 +316,10 @@ const getTrailingPE = async (symbol: string) => {
     }
 }
 
+exports.handleWebhook = functions.https.onRequest((req, res) => {
+    res.send(200)
+})
+
 const getSalesGrowth = async (symbol: string) => {
     await sleep(100)
     const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + symbol + '/income?period=quarter&last=8&token=Tpk_d5ea729178384954bb5301abc99328fa')
