@@ -52,8 +52,12 @@ export default function App(props) {
         for(let thing of fiveDay.data) {
             fiveDayPrices.push(thing.close)
         }
+        let index = 0
         for(let thing of chartData.data['intraday-prices']) {
-            oneDayPrices.push(thing.close)
+            if(thing.close != null && index % 10 === 0){
+                oneDayPrices.push(thing.close)   
+            }
+            index += 1
         }
         setOneDayData(oneDayPrices)
         setFiveDayData(fiveDayPrices)
