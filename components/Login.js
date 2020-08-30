@@ -119,7 +119,7 @@ export default function App({ navigation }) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(() => {
         firebase.auth().currentUser.sendEmailVerification()
-        alert("Confirmation email sent.")
+        alert("Confirmation email sent. Note that you must verify your email before trading.")
       })
       .catch(error => {
         firebase.auth().signInWithEmailAndPassword(email, password)

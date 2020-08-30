@@ -20,6 +20,10 @@ export default function App() {
                         ({route, navigation}) => ({
                             headerRight: () => 
                             <Button onPress = { async () => {
+                                if(!firebase.auth().currentUser.emailVerified) {
+                                    alert("You must verify your email before trading.")
+                                    return
+                                }
                                 if(route.params.selected.length != 0){
                                     var orderResults = []
                                     for(let stock of route.params.selected){
