@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Text } from 'native-base';
 import { Slider, View } from 'react-native';
 
@@ -10,6 +10,10 @@ export default function App(props) {
         props.propogate(props.title, value);
     }
 
+    useEffect(() => {
+        setValue(props.starter)
+    }, [])
+
     return (
         <View>
             <Text>{ value } shares, ($ { value * props.price })</Text>
@@ -20,13 +24,13 @@ export default function App(props) {
                 maximumValue={100}
                 minimumTrackTintColor="#FFFFFF"
                 maximumTrackTintColor="#000000"
-                value = { 0 }
+                value = { props.starter }
                 onValueChange = {
                     value => {
                         clearTimeout(sliderTimeoutId)
                         var sliderTimeoutId = setTimeout(() => {
                             handleChange(value)
-                        }, 1)
+                        }, 5)
                     }
                 }
             />

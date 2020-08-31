@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Spinner, Segment, Header, Button, Text } from 'native-base';
+import { Container, Spinner, Segment, Title, Button, Text, Content } from 'native-base';
 import { FlatList} from 'react-native';
 import { useIsFocused } from '@react-navigation/native'
 
@@ -11,7 +11,7 @@ export default function App({ route, navigation }) {
     const [companies, setCompanies] = useState([])
     const [loading, setLoading] = useState(true)
     const axios = require('axios')
-    const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).where("active","==",true).orderBy("time", "desc").limit(20);
+    const query = firebase.firestore().collection('swipes').where("swipedBy", "==", firebase.auth().currentUser.uid).where("active","==",true).orderBy("time", "desc");
     const isFocused = useIsFocused()
     const [prices, setPrices] = useState({})
     const [loggedIn, setLoggedIn] = useState(false)
@@ -75,14 +75,6 @@ export default function App({ route, navigation }) {
         !loading ?
         <Container>
             <Segment>
-                <Button first onPress = {() => setActiveView(true)} active = {activeView}>
-                    <Text>Longs</Text>
-                </Button>
-                <Button last onPress = {() => setActiveView(false)} active = {!activeView}>
-                    <Text>Shorts</Text>
-                </Button>
-            </Segment>
-            <Segment>
                 <Button first onPress = {() => {setActiveTradeType(true); navigation.setParams({ tradeType: 'paper' })}} active = {activeTradeType}>
                     <Text>Paper</Text>
                 </Button>
@@ -90,16 +82,33 @@ export default function App({ route, navigation }) {
                     <Text>Real</Text>
                 </Button>
             </Segment>
-            <FlatList 
-                data = { companies.slice().filter(item => {if(activeView) { return item.swipeAction !== 'left' } else {return item.swipeAction !== 'right'}}) }
-                renderItem = {
-                    ({item}) => 
-                        (
-                        <AnimatedCard selected = { selected } prices = { prices } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
-                        )
-                }
-                keyExtractor = {(item) => item.swipedOn }
-            />
+            
+            <Content>
+                <Title>Longs</Title>
+                <FlatList 
+                    data = { companies.slice().filter(item => {return item.swipeAction !== 'left'}) }
+                    scrollEnabled = { false }
+                    renderItem = {
+                        ({item}) => 
+                            (
+                            <AnimatedCard selected = { selected } prices = { prices } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
+                            )
+                    }
+                    keyExtractor = {(item) => item.swipedOn }
+                />
+                <Title>Shorts</Title>
+                <FlatList 
+                    data = { companies.slice().filter(item => {return item.swipeAction !== 'right' }) }
+                    scrollEnabled = { false }
+                    renderItem = {
+                        ({item}) => 
+                            (
+                            <AnimatedCard selected = { selected } prices = { prices } handleAdd = { addToSelectedList } handleRemove = { removeFromSelectedList } handleExit = { removeFromCompaniesList } item = {item} />
+                            )
+                    }
+                    keyExtractor = {(item) => item.swipedOn }
+                />
+            </Content>
         </Container>
         :
         <Container style = {{justifyContent: 'center'}}>

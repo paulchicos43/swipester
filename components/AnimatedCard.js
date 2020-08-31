@@ -22,16 +22,18 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
         textColor: 'black',
         selected: false,
     })
+    useEffect(() => {
+        handleAdd(item)
+    }, [])
     const handlePress = () => {
             if(data.selected) {
-                handleRemove(item)
+                
                 setData({
                     textColor: 'black',
                     selected: false
                 })
 
             } else {
-                handleAdd(item)
                 setData({
                     selected: true,
                     textColor: 'rgb(0, 122, 255)'
@@ -39,7 +41,7 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
             }
     }
     const getHoldings = async () => {
-        firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: props.symbol })
+        firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: item.swipedOn })
         .then(result => {
             setHoldings(result.data)
             return
@@ -68,8 +70,10 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
         }
     }, [prices])
     
+    const [sliderVal, setSliderVal] = useState(0)
 
     const propogate = (title, value) => {
+        setSliderVal(value)
         for(var i = 0; i < selected.length; i++) {
             if(selected[i].swipedOn === title) {
                 selected[i].shares = Math.floor(value);
@@ -139,7 +143,9 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                         </AnimatedTouchable>
                     </Right>
                 </CardItem>
-                
+                <CardItem>
+                        <CartItem starter = { sliderVal } price = { price } propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
+                </CardItem>
             </Card>
         </Animated.View>
         :
@@ -167,8 +173,7 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                 </CardItem>
                 <Title>Holdings: { holdings } ($ { holdings * price })</Title>
                 <CardItem>
-                    
-                    <CartItem price = { price } propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
+                        <CartItem starter = { sliderVal } price = { price } propogate = { propogate } fullTitle = { item.swipedOnName } title = { item.swipedOn } />
                 </CardItem>
                 <CardItem style = {{ flexDirection: 'column' }}>
                     <Title>Valuation</Title>
