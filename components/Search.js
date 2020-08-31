@@ -3,17 +3,38 @@ import { Header, Item, Input, Container, ListItem, Icon } from 'native-base'
 import SearchItem from './SearchItem'
 import { TouchableOpacity, FlatList } from 'react-native'
 import Profile from './Profile'
+import firebase from 'firebase'
+const axios = require('axios')
 export default function App({ navigation, route }) {
     const [results, setResults] = useState([])
     const [searchValue, setSearchValue] = useState("")
     const [stocks, setStocks] = useState([])
-    const sectorData = require('../sectors.json');
-    
+    let sectorData
+    useEffect(async () => {
+        const doc = await firebase.firestore().collection('response').doc(firebase.auth().currentUser.uid).get()
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': doc.data().token_type + " " + doc.data().access_token,
+            }
+        }
+        sectorData = await axios.get('https://api.alpaca.markets/v2/assets', options)
+        let tempStocks = []
+        for(let object of sectorData.data){
+            tempStocks[tempStocks.length] = {
+                stockSymbol: object.symbol,
+                stockName: object.name,
+            }
+        }
+        
+        setStocks(tempStocks)
+        console.log(stocks)
+    }, [])
     useEffect(() => {
         const tempResults = []
         
-        for(stock of stocks) {
-            if(searchValue.length <= stock.stockName.length && searchValue.toUpperCase() === stock.stockName.substring(0, searchValue.length).toUpperCase()) {             
+        for(let stock of stocks) {
+            if((searchValue.length <= stock.stockName.length && searchValue.toUpperCase() === stock.stockName.substring(0, searchValue.length).toUpperCase()) || searchValue.toUpperCase() === stock.stockSymbol.toUpperCase()) {             
                 tempResults[tempResults.length] = {
                     stockName: stock.stockName,
                     stockSymbol: stock.stockSymbol
@@ -23,16 +44,6 @@ export default function App({ navigation, route }) {
         setResults(tempResults)
     }, [searchValue])
 
-    useEffect(() => {
-        const tempStocks = []
-        for(let object in sectorData){
-            tempStocks[tempStocks.length] = {
-                stockSymbol: sectorData[object]['Symbol'],
-                stockName: sectorData[object]['Name'],
-            }
-        }
-        setStocks(tempStocks)
-    }, [])
 
 
 
@@ -41,7 +52,7 @@ export default function App({ navigation, route }) {
             <Header searchBar rounded>
                 <Item>
                     <Icon name = 'ios-search' />
-                    <Input onChangeText = { (value) => setSearchValue(value) } placeholder = "Apple" />
+                    <Input onChangeText = { (value) => setSearchValue(value) } placeholder = "Apple or AAPL" />
                 </Item>
             </Header>
             <FlatList

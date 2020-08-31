@@ -34,6 +34,9 @@ export default function App() {
                                                 swipeAction: stock.swipeAction,
                                                 tradeType: route.params.tradeType
                                             })
+                                            .catch(() => {
+                                                navigation.navigate('Alpaca')
+                                            })
                                             orderResults[orderResults.length] = result.data
                                         }
                                     }

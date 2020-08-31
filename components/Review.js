@@ -68,7 +68,7 @@ export default function App({ route, navigation }) {
     const [activeTradeType, setActiveTradeType] = useState(true)
     firebase.functions().httpsCallable("getHoldingNumber")({ searchStock: 'aapl' })
     .catch(() => {
-        navigation.navigate('Alpaca')
+        
     })
     return (
         
