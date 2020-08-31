@@ -70,8 +70,8 @@ export default function App({ navigation, route }) {
         final = final + year + month + day + hour + minute + second;
         return parseInt(final);
     }
-    const [currentName, setCurrentName] = useState(route.params.item.stockSymbol)
-    const [currentStock, setCurrentStock] = useState(route.params.item.stockName)
+    const [currentName, setCurrentName] = useState(route.params.item.stockName)
+    const [currentStock, setCurrentStock] = useState(route.params.item.stockSymbol)
     return (
         <Container>
             <RenderCard title = { route.params.item.stockName } symbol = { route.params.item.stockSymbol }/>
