@@ -5,6 +5,7 @@ import Alpaca from '../components/Alpaca'
 import React, { useState } from 'react'
 import firebase from 'firebase'
 import Confirmation from '../components/Confirmation'
+import orderReview from '../components/OrderReview'
 require('firebase/functions')
 const Stack = createStackNavigator()
 
@@ -24,9 +25,27 @@ export default function App() {
                                     alert("You must verify your email before trading.")
                                     return
                                 }
-                                if(route.params.selected.length != 0){
+                                navigation.navigate("orderReview", {
+                                    order: route.params.selected,
+                                    tradeType: route.params.tradeType,
+                                })
+                            } } title = "Next" />,
+                            headerLeft: () => null,
+                            gestureEnabled: false,
+                        })
+                    }
+                />
+                <Stack.Screen
+                    name = "orderReview"
+                    component = { orderReview }
+                    options = {
+                        ({ route, navigation }) => ({
+                        headerRight: () =>
+                        <Button onPress = {
+                            async () => {
+                                if(route.params.order.length != 0){
                                     var orderResults = []
-                                    for(let stock of route.params.selected){
+                                    for(let stock of route.params.order){
                                         if(stock.shares > 0){
                                             const result = await firebase.functions().httpsCallable('makeOrder')({
                                                 symbol: stock.swipedOn,
@@ -40,23 +59,22 @@ export default function App() {
                                             orderResults[orderResults.length] = result.data
                                         }
                                     }
-                                    navigation.navigate("Confirmation", {
+                                    navigation.navigate("orderConfirmation", {
                                         orderResults: orderResults
                                     })
-                                } else {
-                                    alert("You must select a stock.")
-                                }
-                            } } title = "Trade" />,
-                            headerLeft: () => null,
-                            gestureEnabled: false,
-                        })
-                    }
+                            }
+                        }} title = "Trade"/>,
+                        title: "Confirm your Order" 
+                        
+                        
+                    })
+                }
                 />
                 <Stack.Screen 
-                    name = "Confirmation"
+                    name = "orderConfirmation"
                     component = { Confirmation }
                     options = {{
-
+                        title: "Confirmation"
                     }}
                 />
                 <Stack.Screen
@@ -65,7 +83,8 @@ export default function App() {
                     options = {({navigation, route}) => ({
                         headerLeft: () => null,
                         gestureEnabled: false,
-                        headerRight: () => <Button onPress = { () => navigation.navigate("Review") } title = "Done" />
+                        headerRight: () => <Button onPress = { () => navigation.navigate("Review") } title = "Done" />,
+                        
                     })}
                 />
             </Stack.Navigator>
