@@ -177,24 +177,23 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                 </CardItem>
                 <CardItem style = {{ flexDirection: 'column' }}>
                     <Title>Valuation</Title>
-                    <Text>EV/EBITDA: { tickerData.EVEBITDA }</Text>
-                    <Text>P/E: { tickerData.PE }</Text>
+                    <Text>EV/EBITDA: { tickerData.EVEBITDA.toFixed(1) }x</Text>
+                    <Text>P/E: { tickerData.PE.toFixed(1) }x</Text>
                     <Title>Growth</Title>
-                    <Text>Sales Growth: { tickerData.salesGrowth }</Text>
-                    <Text>EPS Growth: { tickerData.epsGrowth }</Text>
+                    <Text>Sales Growth: { (tickerData.salesGrowth * 100).toFixed(1) }%</Text>
+                    <Text>EPS Growth: { (tickerData.epsGrowth * 100).toFixed(1) }%</Text>
                     <Title>Debt</Title>
-                    <Text>Net Debt/EBITDA: { tickerData.netDebtEBITDA }</Text>
+                    <Text>Net Debt/EBITDA: { (tickerData.netDebtEBITDA * 100).toFixed(1) }x</Text>
                     <Title>Risk</Title>
-                    <Text>Volatility: { tickerData.volatility * 100 } %</Text>
+                    <Text>Volatility: { (tickerData.volatility * 100).toFixed(1) } %</Text>
                     <Title>Ratings</Title>
-                    <Text>Buys: { tickerData.buys }</Text>
-                    <Text>Holds: { tickerData.holds }</Text>
-                    <Text>Sells: { tickerData.sells }</Text>
-                    <Text>Rating Score: { tickerData.ratingScore }</Text>
+                    <Text>Buys/Sells/Holds: { tickerData.buys }/{ tickerData.holds }/{ tickerData.sells }</Text>
+                    <Text>Rating Score: { tickerData.ratingScore.toFixed(2) }</Text>
+                    <Text>Controversy Score: { ((1 - (Math.pow(tickerData.buys / (tickerData.buys + tickerData.sells + tickerData.holds), 2) + Math.pow(tickerData.sells / (tickerData.buys + tickerData.sells + tickerData.holds),2) + Math.pow(tickerData.holds / (tickerData.buys + tickerData.sells + tickerData.holds), 2))) / (2/3) * 100).toFixed(0) }%</Text>
                     <Title>Expectations</Title>
                     <Text>Next Quarter EPS: { tickerData.consensusEPS1 }</Text>
                     <Text>Current Year Fiscal EPS: { tickerData.consensusEPS2 }</Text>
-                    <Text>Price Target: ${ tickerData.priceTarget }</Text>
+                    <Text>Price Target: ${ tickerData.priceTarget } ({ (((tickerData.priceTarget - price)/ price) * 100).toFixed(2) }%)</Text>
                 </CardItem>
             </Card>
         </Animated.View>

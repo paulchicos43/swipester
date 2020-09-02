@@ -197,24 +197,26 @@ export default function App(props) {
                             </Button>
                         </Segment>
                         <Title>Valuation</Title>
-                        <Text>EV/EBITDA: { data.EVEBITDA }</Text>
-                        <Text>P/E: { data.PE }</Text>
+                        <Text>EV/EBITDA: { data.EVEBITDA.toFixed(1) }x</Text>
+                        <Text>P/E: { data.PE.toFixed(1) }x</Text>
                         <Title>Growth</Title>
-                        <Text>Sales Growth: { data.salesGrowth }</Text>
-                        <Text>EPS Growth: { data.epsGrowth }</Text>
+                        <Text>Sales Growth: { (data.salesGrowth * 100).toFixed(1) }%</Text>
+                        <Text>EPS Growth: { (data.epsGrowth * 100).toFixed(1) }%</Text>
                         <Title>Debt</Title>
-                        <Text>Net Debt/EBITDA: { data.netDebtEBITDA }</Text>
+                        <Text>Net Debt/EBITDA: { (data.netDebtEBITDA * 100).toFixed(1) }x</Text>
                         <Title>Risk</Title>
-                        <Text>Volatility: { data.volatility * 100 } %</Text>
+                        <Text>Volatility: { (data.volatility * 100).toFixed(1) } %</Text>
                         <Title>Ratings</Title>
                         <Text>Buys: { data.buys }</Text>
                         <Text>Holds: { data.holds }</Text>
                         <Text>Sells: { data.sells }</Text>
-                        <Text>Rating Score: { data.ratingScore }</Text>
+                        <Text>Buys/Sells/Holds: { data.buys }/{ data.holds }/{ data.sells }</Text>
+                        <Text>Rating Score: { data.ratingScore.toFixed(2) }</Text>
+                        <Text>Controversy Score: { ((1 - (Math.pow(data.buys / (data.buys + data.sells + data.holds), 2) + Math.pow(data.sells / (data.buys + data.sells + data.holds),2) + Math.pow(data.holds / (data.buys + data.sells + data.holds), 2))) / (2/3) * 100).toFixed(0) }%</Text>
                         <Title>Expectations</Title>
                         <Text>Next Quarter EPS: { data.consensusEPS1 }</Text>
                         <Text>Current Year Fiscal EPS: { data.consensusEPS2 }</Text>
-                        <Text>Price Target: ${ data.priceTarget }</Text>
+                        <Text>Price Target: ${ data.priceTarget } ({ (((data.priceTarget - data.price)/data.price) * 100).toFixed(2) }%)</Text>
                         <Title>News</Title>
                         <FlatList 
                         data = {news}
