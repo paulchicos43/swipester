@@ -28,11 +28,22 @@ const buildStorage = async () => {
 }
 export default function App({ navigation }) {
     useEffect(() => {
+
         buildStorage()
     }, [])
+    const result = () => {
+        firebase.functions().httpsCallable('getPeerData')({
+            symbol: 'aapl',
+        })
+        .then(result => {
+            console.log(result)
+        })
+    }
     return (
         <Container>
+
             <Content>
+
                 <Button style = { styles.button } onPress = { () => navigation.navigate("Sectors") } primary block>
                     <Text>Start Swiping</Text>
                 </Button>
@@ -48,7 +59,9 @@ export default function App({ navigation }) {
                 <Button style = { styles.button } onPress = { () => firebase.auth().signOut() } primary block>
                     <Text>Log Out</Text>
                 </Button>
-                
+                <Button onPress = { result }>
+                    <Text>Testing</Text>
+                </Button>
             </Content>
         </Container>
     );

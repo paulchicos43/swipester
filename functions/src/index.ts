@@ -205,6 +205,227 @@ exports.getCache = functions.https.onCall(async (data, context) => {
             }
     }
 })
+const functionalCache = async (symbol: any) => {
+    const databaseResult = await admin.firestore().collection('cache').doc(symbol).get()
+    if(databaseResult.exists) {
+        return databaseResult.data()
+    } else {
+        let EVEBITDA, PE, netDebtEBITDA, salesGrowth, ratingScore, epsGrowth, consensusEPS1, consensusEPS2, priceTarget, volatility, ratings: any
+        try {
+            EVEBITDA = await getEVEBITDA(symbol)
+        } catch(error) {
+            EVEBITDA = "N/A"
+        }
+        try {
+            PE = await getTrailingPE(symbol)
+        } catch(error) {
+            PE = "N/A"
+        }
+        try {
+            netDebtEBITDA = await getNetDebtEBITDA(symbol)
+        } catch(error) {
+            netDebtEBITDA = "N/A"
+        }
+        try {
+            salesGrowth = await getSalesGrowth(symbol)
+        } catch(error) {
+            salesGrowth = "N/A"
+        }
+        try {
+            ratingScore = await getRatingScore(symbol)
+        } catch(error) {
+            ratingScore = "N/A"
+        }
+        try {
+            epsGrowth = await getEPSGrowth(symbol)
+        } catch(error) {
+            epsGrowth = "N/A"
+        }
+        try {
+            consensusEPS1 = await getConsensusEPS1(symbol)
+        } catch(error) {
+            consensusEPS1 = "N/A"
+        }
+        try {
+            consensusEPS2 = await getConsensusEPS2(symbol)
+        } catch(error) {
+            consensusEPS2 = "N/A"
+        }
+        try {
+            priceTarget = await getPriceTarget(symbol)
+        } catch(error) {
+            priceTarget = "N/A"
+        }
+        try {
+            volatility = await getVolatility(symbol)
+        } catch(error) {
+            volatility = "N/A"
+        }
+        try {
+            ratings = await getRatings(symbol)
+        } catch(error) {
+            ratings = "N/A"
+        }
+        admin.firestore().collection('cache').doc(symbol).set({
+            EVEBITDA: EVEBITDA,
+            PE: PE,
+            salesGrowth: salesGrowth,
+            epsGrowth: epsGrowth,
+            netDebtEBITDA: netDebtEBITDA,
+            volatility: volatility,
+            ratingScore: ratingScore,
+            buys: ratings.ratingBuy,
+            holds: ratings.ratingHold,
+            sells: ratings.ratingSell,
+            consensusEPS1: consensusEPS1,
+            consensusEPS2: consensusEPS2,
+            priceTarget: priceTarget,
+        })
+        return {
+            EVEBITDA: EVEBITDA,
+            PE: PE,
+            salesGrowth: salesGrowth,
+            epsGrowth: epsGrowth,
+            netDebtEBITDA: netDebtEBITDA,
+            volatility: volatility,
+            ratingScore: ratingScore,
+            buys: ratings.ratingBuy,
+            holds: ratings.ratingHold,
+            sells: ratings.ratingSell,
+            consensusEPS1: consensusEPS1,
+            consensusEPS2: consensusEPS2,
+            priceTarget: priceTarget,
+            }
+    }
+}
+
+exports.getPeerData = functions.https.onCall(async (data, context) => {
+    const peerCallResult = await axios.get('https://cloud.iexapis.com/stable/stock/' + data.symbol + '/peers?token=pk_622e4c0492694e5d94c202c5612934f9')
+    const peers = peerCallResult.data
+    let EVEBITDA = []
+    let PE = []
+    let salesGrowth = []
+    let epsGrowth = []
+    let netDebtEBITDA = []
+    let volatility = []
+    let ratingScore = []
+    let nextQuarterEPS = []
+    let currentYearEPS = []
+    let priceTarget = []
+    for(let peer of peers) {
+        const peerData = await functionalCache(peer)
+        EVEBITDA.push(peerData.EVEBITDA)
+        PE.push(peerData.PE)
+        salesGrowth.push(peerData.salesGrowth)
+        epsGrowth.push(peerData.epsGrowth)
+        netDebtEBITDA.push(peerData.netDebtEBITDA)
+        volatility.push(peerData.volatility)
+        ratingScore.push(peerData.ratingScore)
+        nextQuarterEPS.push(peerData.nextQuarterEPS)
+        currentYearEPS.push(peerData.currentYearEPS)
+        priceTarget.push(peerData.priceTarget)
+    }
+    let higherThanEVEBITDA
+    let higherThanPE
+    let higherThanSalesGrowth
+    let higherThanEPSGrowth
+    let higherThanNetDebtEBITDA
+    let higherThanVolatility
+    let higherThanRatingScore
+    let higherThanNextQuarterEPS
+    let higherThanCurrentYearEPS
+    let higherThanPriceTarget
+    const symbolData = await functionalCache(data.symbol)
+    let count = 0
+    for(let num of EVEBITDA) {
+        if (symbolData.EVEBITDA > num) {
+            count++
+        }
+    }
+    higherThanEVEBITDA = count
+    count = 0
+    for(let num of epsGrowth) {
+        if(symbolData.epsGrowth > num) {
+            count++
+        }
+    }
+    higherThanEPSGrowth = count
+    count = 0
+
+    for(let num of PE) {
+        if(symbolData.PE > num) {
+            count++
+        }
+    }
+    higherThanPE = count
+    count = 0
+    for(let num of salesGrowth) {
+        if(symbolData.salesGrowth > num) {
+            count++
+        }
+    }
+    higherThanSalesGrowth = count
+    count = 0
+    for(let num of netDebtEBITDA) {
+        if(symbolData.netDebtEBITDA > num) {
+            count++
+        }
+    }
+    higherThanNetDebtEBITDA = count
+    count = 0
+    for(let num of volatility) {
+        if(symbolData.volatility > num) {
+            count++
+        }
+    }
+    higherThanVolatility = count
+    count = 0
+    for(let num of ratingScore) {
+        if(symbolData.ratingScore > num) {
+            count++
+        }
+
+    }
+    higherThanRatingScore = count
+    count = 0
+    for(let num of nextQuarterEPS) {
+        if(symbolData.nextQuarterEPS > num) {
+            count++
+        }
+    }
+    higherThanNextQuarterEPS = count
+    count = 0
+    for(let num of currentYearEPS) {
+        if(symbolData.currentYearEPS > num) {
+            count++
+        }
+    }
+    higherThanCurrentYearEPS = count
+    count = 0
+    for(let num of priceTarget) {
+        if(symbolData.priceTarget > num) {
+            count++
+        }
+    }
+    higherThanPriceTarget = count
+    count = 0
+    return {
+        higherThanEVEBITDA: higherThanEVEBITDA + '/' + EVEBITDA.length,
+        higherThanPE: higherThanPE + '/' + PE.length,
+        higherThanSalesGrowth: higherThanSalesGrowth + '/' + salesGrowth.length,
+        higherThanNetDebtEBITDA: higherThanNetDebtEBITDA + '/' + netDebtEBITDA.length,
+        higherThanVolatility: higherThanVolatility + '/' + volatility.length,
+        higherThanRatingScore: higherThanRatingScore + '/' + ratingScore.length,
+        higherThanNextQuarterEPS: higherThanNextQuarterEPS + '/' + nextQuarterEPS.length,
+        higherThanCurrentYearEPS: higherThanCurrentYearEPS + '/' + currentYearEPS.length,
+        higherThanPriceTarget: higherThanPriceTarget + '/' + priceTarget.length,
+        higherThanEPSGrowth: higherThanEPSGrowth + '/' + epsGrowth.length,
+    }
+})
+
+
+
+
 
 exports.getPositions = functions.https.onCall(async (data, context) => {
     const doc = await admin.firestore().collection('response').doc(context.auth?.uid).get()

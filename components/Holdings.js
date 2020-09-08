@@ -21,13 +21,26 @@ export default function App({ navigation, route }) {
     }, [isFocused])
 
 
-
-
+    const getSumSquared = () => {
+        let sum = 0
+        for(let item of holdings) {
+            sum = sum + Math.pow(percentOfPositions(item.market_value), 2)
+        }
+        console.log(holdings.length)
+        return sum
+    }
+    const percentOfPositions = (num) => {
+        let sum = 0
+        for(let item of holdings) {
+            sum = sum + item.market_value
+        }
+        return (num / sum) * 100
+    }
 
     return (
         !loading ? 
         <Container>
-            <Title>Diversification Score: { Math.min(holdings.length/20 * 100, 100) }</Title>
+            <Title>Diversification Score: { holdings.length > 1 ? (1 - getSumSquared())/ (1 - 1 / holdings.length) : 0 }% (out of 100%)</Title>
             <FlatList 
                 data = { holdings }
                 renderItem = {({item}) => (
@@ -35,11 +48,11 @@ export default function App({ navigation, route }) {
                         <CardItem>
                             <Body>
                                 <Title style = { { alignSelf: 'center' } }>{ item.symbol }</Title>
-                                <Text>Market Value: { item.market_value }</Text>
-                                <Text>Side: { item.side }</Text>
-                                <Text>Percent Change: { item.unrealized_plpc }</Text>
-                                <Text>Current Price: { item.current_price }</Text>
-                                <Text>Quantity: { item.qty }</Text>
+                                <Text>Market Value: ${ item.market_value }</Text>
+                                <Text>Side: { item.side === 'long' ? 'Long' : 'Short' }</Text>
+                                <Text>Percent Change: { (item.unrealized_plpc * 100).toFixed(2) }%</Text>
+                                <Text>Current Price: ${ item.current_price }</Text>
+                                <Text>Shares: { item.qty }</Text>
                             </Body>
                         </CardItem>
                     </Card>

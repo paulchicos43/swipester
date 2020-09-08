@@ -3,6 +3,8 @@ import { Container, Content } from 'native-base';
 import { StyleSheet } from 'react-native';
 import SectorCard from './SectorCard';
 import AsyncStorage from '@react-native-community/async-storage';
+import firebase from 'firebase'
+require('firebase/functions')
 const resetStorage = async () => {
     await AsyncStorage.setItem('Energy', '0');
     await AsyncStorage.setItem('Materials', '0');
@@ -46,6 +48,7 @@ export default function App({ navigation }) {
     useEffect(() => {
         buildStorage()
     }, [])
+
     return (
         <Container>
             <Content>

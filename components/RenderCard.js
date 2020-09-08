@@ -37,6 +37,7 @@ export default function App(props) {
     })
     const [chartData, setChartData] = useState([])
     const batchRequest = async () => {
+        
         setActive(2)
         const result = await axios.get('https://sandbox.iexapis.com/stable/stock/' + props.symbol + '/batch?types=quote&token=Tsk_47aba52e64214057b138bb7b57e751f7')
         const price = result.data.quote.latestPrice
@@ -123,6 +124,7 @@ export default function App(props) {
     const [holdings, setHoldings] = useState(0)
     useEffect(() => {
         setLoading(true)
+        getPeerData()
         const effectFunction = async () => {
             await batchRequest()
             await getNews()
@@ -142,6 +144,13 @@ export default function App(props) {
         } else if (active === 2) {
             setChartData(sixMonthData)
         }
+    }
+    const [peerData, setPeerData] = useState({})
+    const getPeerData = async () => {
+        const peerData = await firebase.functions().httpsCallable('getPeerData')({
+            symbol: props.symbol
+        })
+        setPeerData(peerData.data)
     }
     return (
         !loading ?
@@ -197,26 +206,23 @@ export default function App(props) {
                             </Button>
                         </Segment>
                         <Title>Valuation</Title>
-                        <Text>EV/EBITDA: { data.EVEBITDA.toFixed(1) }x</Text>
-                        <Text>P/E: { data.PE.toFixed(1) }x</Text>
-                        <Title>Growth</Title>
-                        <Text>Sales Growth: { (data.salesGrowth * 100).toFixed(1) }%</Text>
-                        <Text>EPS Growth: { (data.epsGrowth * 100).toFixed(1) }%</Text>
-                        <Title>Debt</Title>
-                        <Text>Net Debt/EBITDA: { (data.netDebtEBITDA * 100).toFixed(1) }x</Text>
-                        <Title>Risk</Title>
-                        <Text>Volatility: { (data.volatility * 100).toFixed(1) } %</Text>
-                        <Title>Ratings</Title>
-                        <Text>Buys: { data.buys }</Text>
-                        <Text>Holds: { data.holds }</Text>
-                        <Text>Sells: { data.sells }</Text>
-                        <Text>Buys/Sells/Holds: { data.buys }/{ data.holds }/{ data.sells }</Text>
-                        <Text>Rating Score: { data.ratingScore.toFixed(2) }</Text>
-                        <Text>Controversy Score: { ((1 - (Math.pow(data.buys / (data.buys + data.sells + data.holds), 2) + Math.pow(data.sells / (data.buys + data.sells + data.holds),2) + Math.pow(data.holds / (data.buys + data.sells + data.holds), 2))) / (2/3) * 100).toFixed(0) }%</Text>
-                        <Title>Expectations</Title>
-                        <Text>Next Quarter EPS: { data.consensusEPS1 }</Text>
-                        <Text>Current Year Fiscal EPS: { data.consensusEPS2 }</Text>
-                        <Text>Price Target: ${ data.priceTarget } ({ (((data.priceTarget - data.price)/data.price) * 100).toFixed(2) }%)</Text>
+                    <Text>EV/EBITDA: { data.EVEBITDA.toFixed(1) }x (higher than { peerData.higherThanEVEBITDA } peers)</Text>
+                    <Text>P/E: { data.PE.toFixed(1) }x (higher than { peerData.higherThanPE } peers)</Text>
+                    <Title>Growth</Title>
+                    <Text>Sales Growth: { (data.salesGrowth * 100).toFixed(1) }% (higher than { peerData.higherThanSalesGrowth } peers)</Text>
+                    <Text>EPS Growth: { (data.epsGrowth * 100).toFixed(1) }% (higher than { peerData.higherThanEPSGrowth } peers)</Text>
+                    <Title>Debt</Title>
+                    <Text>Net Debt/EBITDA: { (data.netDebtEBITDA * 100).toFixed(1) }x (higher than { peerData.higherThanNetDebtEBITDA } peers)</Text>
+                    <Title>Risk</Title>
+                    <Text>Volatility: { (data.volatility * 100).toFixed(1) } % (higher than { peerData.higherThanVolatility } peers)</Text>
+                    <Title>Ratings</Title>
+                    <Text>Buys/Sells/Holds: { data.buys }/{ data.holds }/{ data.sells }</Text>
+                    <Text>Rating Score: { data.ratingScore.toFixed(2) } (higher than { peerData.higherThanRatingScore } peers)</Text>
+                    <Text>Controversy Score: { ((1 - (Math.pow(data.buys / (data.buys + data.sells + data.holds), 2) + Math.pow(data.sells / (data.buys + data.sells + data.holds),2) + Math.pow(data.holds / (data.buys + data.sells + data.holds), 2))) / (2/3) * 100).toFixed(0) }%</Text>
+                    <Title>Expectations</Title>
+                    <Text>Next Quarter EPS: { data.consensusEPS1 } (higher than { peerData.higherThanNextQuarterEPS } peers)</Text>
+                    <Text>Current Year Fiscal EPS: { data.consensusEPS2 } (higher than { peerData.higherThanCurrentYearEPS } peers)</Text>
+                    <Text>Price Target: ${ data.priceTarget } ({ (((data.priceTarget - data.price)/ data.price) * 100).toFixed(2) }%) (higher than { peerData.higherThanPriceTarget } peers)</Text>
                         <Title>News</Title>
                         <FlatList 
                         data = {news}

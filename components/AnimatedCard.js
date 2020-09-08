@@ -118,7 +118,15 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
             })
         }
         getTickerData()
+        getPeerData()
     }, [])
+    const [peerData, setPeerData] = useState({})
+    const getPeerData = async () => {
+        const peerData = await firebase.functions().httpsCallable('getPeerData')({
+            symbol: item.swipedOn
+        })
+        setPeerData(peerData.data)
+    }
     return (
         !data.selected ? <Animated.View style = {{useNativeDriver: true, transform: position.getTranslateTransform()}}>
             <Card>
@@ -177,23 +185,23 @@ export default function App({prices, handleExit, selected, handleAdd, handleRemo
                 </CardItem>
                 <CardItem style = {{ flexDirection: 'column' }}>
                     <Title>Valuation</Title>
-                    <Text>EV/EBITDA: { tickerData.EVEBITDA.toFixed(1) }x</Text>
-                    <Text>P/E: { tickerData.PE.toFixed(1) }x</Text>
+                    <Text>EV/EBITDA: { tickerData.EVEBITDA.toFixed(1) }x (higher than { peerData.higherThanEVEBITDA } peers)</Text>
+                    <Text>P/E: { tickerData.PE.toFixed(1) }x (higher than { peerData.higherThanPE } peers)</Text>
                     <Title>Growth</Title>
-                    <Text>Sales Growth: { (tickerData.salesGrowth * 100).toFixed(1) }%</Text>
-                    <Text>EPS Growth: { (tickerData.epsGrowth * 100).toFixed(1) }%</Text>
+                    <Text>Sales Growth: { (tickerData.salesGrowth * 100).toFixed(1) }% (higher than { peerData.higherThanSalesGrowth } peers)</Text>
+                    <Text>EPS Growth: { (tickerData.epsGrowth * 100).toFixed(1) }% (higher than { peerData.higherThanEPSGrowth } peers)</Text>
                     <Title>Debt</Title>
-                    <Text>Net Debt/EBITDA: { (tickerData.netDebtEBITDA * 100).toFixed(1) }x</Text>
+                    <Text>Net Debt/EBITDA: { (tickerData.netDebtEBITDA * 100).toFixed(1) }x (higher than { peerData.higherThanNetDebtEBITDA } peers)</Text>
                     <Title>Risk</Title>
-                    <Text>Volatility: { (tickerData.volatility * 100).toFixed(1) } %</Text>
+                    <Text>Volatility: { (tickerData.volatility * 100).toFixed(1) } % (higher than { peerData.higherThanVolatility } peers)</Text>
                     <Title>Ratings</Title>
                     <Text>Buys/Sells/Holds: { tickerData.buys }/{ tickerData.holds }/{ tickerData.sells }</Text>
-                    <Text>Rating Score: { tickerData.ratingScore.toFixed(2) }</Text>
+                    <Text>Rating Score: { tickerData.ratingScore.toFixed(2) } (higher than { peerData.higherThanRatingScore } peers)</Text>
                     <Text>Controversy Score: { ((1 - (Math.pow(tickerData.buys / (tickerData.buys + tickerData.sells + tickerData.holds), 2) + Math.pow(tickerData.sells / (tickerData.buys + tickerData.sells + tickerData.holds),2) + Math.pow(tickerData.holds / (tickerData.buys + tickerData.sells + tickerData.holds), 2))) / (2/3) * 100).toFixed(0) }%</Text>
                     <Title>Expectations</Title>
-                    <Text>Next Quarter EPS: { tickerData.consensusEPS1 }</Text>
-                    <Text>Current Year Fiscal EPS: { tickerData.consensusEPS2 }</Text>
-                    <Text>Price Target: ${ tickerData.priceTarget } ({ (((tickerData.priceTarget - price)/ price) * 100).toFixed(2) }%)</Text>
+                    <Text>Next Quarter EPS: { tickerData.consensusEPS1 } (higher than { peerData.higherThanNextQuarterEPS } peers)</Text>
+                    <Text>Current Year Fiscal EPS: { tickerData.consensusEPS2 } (higher than { peerData.higherThanCurrentYearEPS } peers)</Text>
+                    <Text>Price Target: ${ tickerData.priceTarget } ({ (((tickerData.priceTarget - price)/ price) * 100).toFixed(2) }%) (higher than { peerData.higherThanPriceTarget } peers)</Text>
                 </CardItem>
             </Card>
         </Animated.View>
